@@ -15,6 +15,7 @@
 {{ render_widgets('client.page.login.form.before') }}
 
 <form method="post" action="{{ 'client/login'|api_url(null, 'guest') }}" {{ fb_api_form({redirect: redirect_uri|default('/')|url}) }}>
+    <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
     <div class="theme-form-group">
         <label class="theme-form-label" for="login_email">{{ 'Email Address'|trans }}</label>
         <input type="email" class="theme-input" id="login_email" name="email" value="{{ request.email }}" placeholder="you@domain.com" required autofocus>

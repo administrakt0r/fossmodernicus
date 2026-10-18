@@ -30,6 +30,8 @@
     {{ render_widgets('client.theme.head.end') }}
 </head>
 
+{% set default_currency = default_currency|default(guest.cart_get_currency.code|default('EUR')) %}
+
 <body class="{% block body_class %}{% endblock %}">
 <a href="#main-content" class="visually-hidden-focusable btn btn-primary position-absolute top-0 start-0 m-2" style="z-index: 9999;">{{ 'Skip to main content'|trans }}</a>
 {{ render_widgets('client.theme.body.start') }}

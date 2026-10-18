@@ -5,6 +5,7 @@
   "icon": "screenshot.jpg",
   "author": "WPinEU.com",
   "author_url": "https://wpineu.com",
+  "license": "Apache-2.0",
   "markdown_attributes": {
     "\\League\\CommonMark\\Extension\\Table\\Table": {
       "class": "table table-hover align-middle mb-0"

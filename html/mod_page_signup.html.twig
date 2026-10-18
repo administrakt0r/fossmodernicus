@@ -1,5 +1,7 @@
 {% extends "layout_public.html.twig" %}
 
+{% import "macro_functions.html.twig" as mf %}
+
 {% block meta_title %}{{ 'Create Account'|trans }}{% endblock %}
 
 {% set r = guest.client_required %}
@@ -15,6 +17,7 @@
 </div>
 
 <form method="post" action="{{ 'client/create'|api_url(null, 'guest') }}" {{ fb_api_form({redirect: '/'|url}) }}>
+    <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
         <div class="theme-form-group">
             <label class="theme-form-label" for="reg_first_name">{{ 'First Name'|trans }} *</label>
@@ -56,6 +59,8 @@
             <input type="text" id="honeypot_{{ honeypot.field }}" name="{{ honeypot.field }}" value="" tabindex="-1" autocomplete="off" aria-hidden="true"/>
         </div>
     {% endif %}
+
+    {{ mf.recaptcha }}
 
     <div class="mt-4">
         <button type="submit" class="theme-btn theme-btn-primary w-100" style="padding: 0.65rem 1rem; font-size: 0.9375rem; width: 100%;">
