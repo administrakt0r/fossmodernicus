@@ -1,0 +1,48 @@
+{% extends "layout_public.html.twig" %}
+
+{% block meta_title %}{{ 'Sign In'|trans }}{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <h1 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-main);">
+        {{ 'Sign In to Your Account'|trans }}
+    </h1>
+    <p class="text-muted mb-0" style="font-size: 0.875rem;">
+        {{ 'Enter your email and password to access your client portal.'|trans }}
+    </p>
+</div>
+
+{{ render_widgets('client.page.login.form.before') }}
+
+<form method="post" action="{{ 'client/login'|api_url(null, 'guest') }}" {{ fb_api_form({redirect: redirect_uri|default('/')|url}) }}>
+    <div class="theme-form-group">
+        <label class="theme-form-label" for="login_email">{{ 'Email Address'|trans }}</label>
+        <input type="email" class="theme-input" id="login_email" name="email" value="{{ request.email }}" placeholder="you@domain.com" required autofocus>
+    </div>
+
+    <div class="theme-form-group">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="theme-form-label mb-0" for="login_password">{{ 'Password'|trans }}</label>
+            {% if settings.show_password_reset_link != '0' %}
+                <a href="{{ 'password-reset'|url }}" style="font-size: 0.8125rem; color: var(--primary);">{{ 'Forgot password?'|trans }}</a>
+            {% endif %}
+        </div>
+        <input type="password" class="theme-input" id="login_password" name="password" placeholder="••••••••" required>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="theme-btn theme-btn-primary w-100" style="padding: 0.65rem 1rem; font-size: 0.9375rem; width: 100%;">
+            {{ 'Sign In'|trans }}
+        </button>
+    </div>
+</form>
+
+{{ render_widgets('client.page.login.form.after') }}
+
+{% if settings.show_register_link != '0' %}
+    <div class="text-center mt-4 pt-3 border-top border-subtle" style="font-size: 0.875rem;">
+        <span class="text-muted">{{ "Don't have an account yet?"|trans }}</span>
+        <a href="{{ 'signup'|url }}" style="font-weight: 600; margin-left: 0.25rem;">{{ 'Create an account'|trans }}</a>
+    </div>
+{% endif %}
+{% endblock %}

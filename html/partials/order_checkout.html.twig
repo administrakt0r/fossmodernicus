@@ -1,0 +1,388 @@
+{# Modern Review & Checkout View #}
+{% set cart_currency = guest.cart_get_currency %}
+{% set periods = guest.system_periods %}
+
+{% if cart.items|length == 0 %}
+    <div class="theme-card p-5 text-center my-4">
+        <div class="mb-3">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </div>
+        <h1 class="h4 fw-bold mb-2">{{ 'Your shopping cart is empty'|trans }}</h1>
+        <p class="text-muted small mb-4">{{ 'You have not added any services or products to your shopping cart yet.'|trans }}</p>
+        <a href="{{ 'order'|url }}" class="theme-btn theme-btn-primary">
+            {{ 'Browse Available Plans'|trans }}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ms-1"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+    </div>
+{% else %}
+    <div class="row g-4">
+        {# Left Column: Cart items, Promo, Auth, Payment Gateways #}
+        <div class="col-12 col-lg-8">
+            {# Cart Items Card #}
+            <div class="theme-card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-subtle">
+                    <h1 class="h5 fw-bold mb-0">{{ 'Review Cart Items'|trans }} ({{ cart.items|length }})</h1>
+                    <a href="{{ 'order'|url }}" class="small text-decoration-none d-inline-flex align-items-center" style="color: var(--primary);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        {{ 'Add More Services'|trans }}
+                    </a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table theme-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>{{ 'Service / Product'|trans }}</th>
+                                <th>{{ 'Billing Cycle'|trans }}</th>
+                                <th class="text-center">{{ 'Qty'|trans }}</th>
+                                <th class="text-end">{{ 'Price'|trans }}</th>
+                                <th class="text-end" style="width: 40px;"><span class="visually-hidden">{{ 'Actions'|trans }}</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart.items %}
+                                <tr>
+                                    <td>
+                                        <strong class="text-main d-block">{{ item.title }}</strong>
+                                        {% if item.description %}
+                                            <span class="text-muted small">{{ item.description }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary-lt">
+                                            {{ periods[item.period]|default(item.period)|default('One-time') }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center font-monospace">{{ item.quantity|default(1) }}</td>
+                                    <td class="text-end fw-bold text-main font-monospace">
+                                        {{ (item.total * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{{ 'cart/remove_item'|api_url({ id: item.id }, 'guest') }}" class="btn btn-sm btn-outline-danger p-1"
+                                           title="{{ 'Remove item'|trans }}" aria-label="{{ 'Remove item'|trans }}"
+                                           {{ fb_api_link({ reload: true }) }}>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {# Promo Code Card #}
+            <div class="theme-card p-4 mb-4">
+                <h2 class="h5 fw-bold mb-2">{{ 'Promotional Code'|trans }}</h2>
+                {% if cart.promocode %}
+                    <div class="d-flex flex-wrap align-items-center justify-content-between p-3 rounded" style="background-color: var(--color-success-bg); border: 1px solid var(--color-success);">
+                        <div class="d-flex align-items-center gap-2">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-success"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                            <span class="fw-bold text-success">{{ 'Coupon Applied:'|trans }} <code class="ms-1 px-2 py-1 rounded bg-white text-success border border-success">{{ cart.promocode }}</code></span>
+                        </div>
+                        <a href="{{ 'cart/remove_promo'|api_url(null, 'guest') }}" class="theme-btn theme-btn-outline theme-btn-sm" {{ fb_api_link({ reload: true }) }}>
+                            {{ 'Remove Coupon'|trans }}
+                        </a>
+                    </div>
+                {% else %}
+                    <form method="post" action="{{ 'cart/apply_promo'|api_url(null, 'guest') }}" {{ fb_api_form({ reload: true }) }}>
+                        <div class="input-group" style="max-width: 420px;">
+                            <input type="text" name="promocode" class="form-control" placeholder="{{ 'Enter discount or promo code'|trans }}" aria-label="{{ 'Promotional code'|trans }}" required>
+                            <button type="submit" class="theme-btn theme-btn-primary">{{ 'Apply Code'|trans }}</button>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+
+            {# Account Details Card #}
+            <div class="theme-card p-4 mb-4" id="order-auth-card">
+                <h2 class="h5 fw-bold mb-3">{{ 'Account Details'|trans }}</h2>
+
+                {% if client %}
+                    <div class="d-flex flex-wrap align-items-center justify-content-between p-3 rounded bg-subtle border border-subtle">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="theme-avatar" style="width: 44px; height: 44px; font-size: 1rem;">
+                                {{ profile.first_name|first|upper }}{{ profile.last_name|first|upper }}
+                            </div>
+                            <div>
+                                <strong class="text-main d-block">{{ profile.first_name }} {{ profile.last_name }}</strong>
+                                <span class="text-muted small">{{ profile.email }}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="badge bg-success-lt">{{ 'Logged In'|trans }}</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-muted small mb-3">{{ 'Sign in to your existing account or create a new one to complete your order.'|trans }}</p>
+
+                    <ul class="nav nav-pills gap-2 mb-3" id="order-auth-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="auth-login-tab" data-bs-toggle="pill" data-bs-target="#auth-login" type="button" role="tab" aria-selected="true">
+                                {{ 'Existing Client Sign In'|trans }}
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="auth-register-tab" data-bs-toggle="pill" data-bs-target="#auth-register" type="button" role="tab" aria-selected="false">
+                                {{ 'Create New Account'|trans }}
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content pt-2">
+                        {# Sign In Tab #}
+                        <div class="tab-pane fade show active" id="auth-login" role="tabpanel" aria-labelledby="auth-login-tab">
+                            <form method="post" action="{{ 'client/login'|api_url(null, 'guest') }}" {{ fb_api_form({ reload: true, message: 'Logged in successfully'|trans }) }}>
+                                <div class="row g-3">
+                                    <div class="col-12 col-sm-6">
+                                        <label for="order-login-email" class="form-label small fw-medium">{{ 'Email Address'|trans }}</label>
+                                        <input type="email" name="email" id="order-login-email" class="form-control" required autocomplete="email">
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <label for="order-login-password" class="form-label small fw-medium">{{ 'Password'|trans }}</label>
+                                        <input type="password" name="password" id="order-login-password" class="form-control" required autocomplete="current-password">
+                                    </div>
+                                    <div class="col-12 d-flex justify-content-between align-items-center">
+                                        <a href="{{ 'password-reset'|url }}" class="small text-muted" target="_blank">{{ 'Forgot password?'|trans }}</a>
+                                        <button type="submit" class="theme-btn theme-btn-primary">{{ 'Sign In & Continue'|trans }}</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        {# Register Tab #}
+                        <div class="tab-pane fade" id="auth-register" role="tabpanel" aria-labelledby="auth-register-tab">
+                            <form method="post" action="{{ 'client/create'|api_url(null, 'guest') }}" {{ fb_api_form({ reload: true, message: 'Account created successfully'|trans }) }}>
+                                <div class="row g-3">
+                                    <div class="col-12 col-sm-6">
+                                        <label for="order-reg-first" class="form-label small fw-medium">{{ 'First Name'|trans }}</label>
+                                        <input type="text" name="first_name" id="order-reg-first" class="form-control" required autocomplete="given-name">
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <label for="order-reg-last" class="form-label small fw-medium">{{ 'Last Name'|trans }}</label>
+                                        <input type="text" name="last_name" id="order-reg-last" class="form-control" required autocomplete="family-name">
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="order-reg-email" class="form-label small fw-medium">{{ 'Email Address'|trans }}</label>
+                                        <input type="email" name="email" id="order-reg-email" class="form-control" required autocomplete="email">
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <label for="order-reg-password" class="form-label small fw-medium">{{ 'Choose Password'|trans }}</label>
+                                        <input type="password" name="password" id="order-reg-password" class="form-control" required autocomplete="new-password">
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <label for="order-reg-confirm" class="form-label small fw-medium">{{ 'Confirm Password'|trans }}</label>
+                                        <input type="password" name="password_confirm" id="order-reg-confirm" class="form-control" required autocomplete="new-password">
+                                    </div>
+                                    <div class="col-12 text-end">
+                                        <button type="submit" class="theme-btn theme-btn-primary">{{ 'Create Account & Continue'|trans }}</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            {# Main Checkout Form #}
+            <form method="post" action="{{ 'cart/checkout'|api_url }}" id="order-checkout-form" {{ fb_api_form({ callback: 'onOrderCheckout' }) }}>
+                {# Payment Method Selection #}
+                {% set enough_in_balance = client ? client.client_balance_get_total >= cart.total : false %}
+                {% if cart.total > 0 and not enough_in_balance %}
+                    <div class="theme-card p-4 mb-4">
+                        <h2 class="h5 fw-bold mb-1">{{ 'Payment Method'|trans }}</h2>
+                        <p class="text-muted small mb-3">{{ 'Select your preferred payment gateway to complete this transaction securely.'|trans }}</p>
+
+                        <div class="row g-3">
+                            {% set gateway_selected = false %}
+                            {% for gtw in guest.invoice_gateways %}
+                                {% if cart_currency.code in gtw.accepted_currencies and (gtw.allow_single or (cart.subscribable|default(false) and gtw.allow_recurrent)) %}
+                                    <div class="col-12 col-sm-6">
+                                        <label class="theme-card p-3 h-100 d-flex align-items-center gap-3 cursor-pointer payment-method-card {% if not gateway_selected %}selected{% endif %}" for="gtw-{{ gtw.id }}">
+                                            <input type="radio" name="gateway_id" id="gtw-{{ gtw.id }}" value="{{ gtw.id }}" class="form-check-input me-1 gateway-radio" {% if not gateway_selected %}checked="checked"{% endif %}>
+                                            <div class="d-flex align-items-center gap-2">
+                                                {% if gtw.logo.logo %}
+                                                    <img src="{{ gtw.logo.logo }}" alt="{{ gtw.title }}" style="max-height: 28px; max-width: 80px; object-fit: contain;">
+                                                {% endif %}
+                                                <strong class="text-main">{{ gtw.title }}</strong>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    {% set gateway_selected = true %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% elseif enough_in_balance %}
+                    <div class="theme-card p-4 mb-4 border-success" style="background-color: var(--color-success-bg);">
+                        <div class="d-flex align-items-center gap-3">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-success"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            <div>
+                                <strong class="text-success d-block">{{ 'Account Credit Available'|trans }}</strong>
+                                <span class="text-muted small">{{ 'The total amount will be deducted automatically from your account balance.'|trans }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# Terms & Privacy Policy Acceptance Statement #}
+                <div class="theme-card p-3 mb-4" style="background-color: var(--primary-subtle); border-left: 3px solid var(--primary);">
+                    <div class="d-flex align-items-start gap-3">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary); flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        <div class="text-muted small" style="line-height: 1.5;">
+                            {{ 'By placing this order and continuing, you agree to our'|trans }}
+                            <a href="{{ 'tos'|url }}" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-underline fw-semibold">{{ 'Terms of Service'|trans }}</a>
+                            {{ 'and'|trans }}
+                            <a href="{{ 'privacy-policy'|url }}" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-underline fw-semibold">{{ 'Privacy Policy'|trans }}</a>.
+                            {{ 'Service activation begins immediately upon payment verification.'|trans }}
+                        </div>
+                    </div>
+                </div>
+
+                {# Mobile Complete Order Button (Visible on mobile viewports) #}
+                <div class="d-lg-none mb-4">
+                    {% if client %}
+                        <button type="submit" class="theme-btn theme-btn-primary w-100 justify-content-center py-3 fs-5" id="checkout-btn-mobile">
+                            <span>{{ 'Complete Order & Pay'|trans }}</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ms-2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </button>
+                        <p class="text-center text-muted small mt-2 mb-0" style="font-size: 0.75rem;">
+                            {{ 'Placing this order confirms acceptance of our'|trans }}
+                            <a href="{{ 'tos'|url }}" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-underline">{{ 'Terms of Service'|trans }}</a>.
+                        </p>
+                    {% else %}
+                        <a href="#order-auth-card" class="theme-btn theme-btn-primary w-100 justify-content-center py-3 fs-5">
+                            {{ 'Sign In to Complete Order'|trans }}
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        {# Right Column: Sticky Summary & Checkout Action #}
+        <div class="col-12 col-lg-4">
+            <div class="theme-card p-4 sticky-top" style="top: 80px; z-index: 10;">
+                <h2 class="h5 fw-bold mb-3 pb-2 border-bottom border-subtle">{{ 'Payment Summary'|trans }}</h2>
+
+                <div class="d-flex justify-content-between align-items-center py-2">
+                    <span class="text-muted small">{{ 'Subtotal'|trans }}</span>
+                    <span class="fw-bold text-main font-monospace">
+                        {{ (cart.subtotal * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                    </span>
+                </div>
+
+                {% if cart.discount > 0 %}
+                    <div class="d-flex justify-content-between align-items-center py-2 text-success">
+                        <span class="small">{{ 'Discount'|trans }}</span>
+                        <span class="fw-bold font-monospace">
+                            - {{ (cart.discount * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                        </span>
+                    </div>
+                {% endif %}
+
+                {% set tax_amount = 0 %}
+                {% if client and client.client_is_taxable %}
+                    {% set tax_rate = client.invoice_get_tax_rate %}
+                    {% set tax_amount = cart.total * tax_rate / 100 %}
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="text-muted small">{{ 'VAT / Tax'|trans }} ({{ tax_rate }}%)</span>
+                        <span class="fw-bold text-main font-monospace">
+                            {{ (tax_amount * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                        </span>
+                    </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center py-3 border-top border-bottom border-subtle my-3">
+                    <div>
+                        <strong class="d-block text-main fs-5">{{ 'Total Due'|trans }}</strong>
+                        <span class="text-muted small">{{ 'Including applicable taxes'|trans }}</span>
+                    </div>
+                    <span class="fs-2 fw-bold text-main font-monospace">
+                        {{ ((cart.total + tax_amount) * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                    </span>
+                </div>
+
+                <div class="d-none d-lg-block">
+                    {% if client %}
+                        <button type="submit" form="order-checkout-form" class="theme-btn theme-btn-primary w-100 justify-content-center py-2 fs-6 mb-2" id="checkout-btn-desktop">
+                            <span>{{ 'Complete Order & Pay'|trans }}</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ms-1"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </button>
+                        <p class="text-center text-muted small mb-3" style="font-size: 0.75rem; line-height: 1.4;">
+                            {{ 'By placing this order, you agree to our'|trans }}
+                            <a href="{{ 'tos'|url }}" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-underline">{{ 'Terms'|trans }}</a>
+                            {{ 'and'|trans }}
+                            <a href="{{ 'privacy-policy'|url }}" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-underline">{{ 'Privacy Policy'|trans }}</a>.
+                        </p>
+                    {% else %}
+                        <a href="#order-auth-card" class="theme-btn theme-btn-primary w-100 justify-content-center py-2 fs-6 mb-3">
+                            {{ 'Sign In to Complete Order'|trans }}
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="mt-3 pt-3 border-top border-subtle text-muted small">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-success"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span>{{ 'SSL Encrypted & Protected'|trans }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-success"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        <span>{{ 'Immediate Order Fulfillment'|trans }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Payment Gateway Redirect Modal / Container #}
+    <div id="payment-redirect-modal" class="modal fade" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content theme-card p-4 text-center">
+                <div class="spinner-border mb-3 mx-auto" style="color: var(--primary);"></div>
+                <h3 class="h5 fw-bold mb-1">{{ 'Processing your payment...'|trans }}</h3>
+                <p class="text-muted small mb-0">{{ 'Please wait while we redirect you to your chosen payment gateway.'|trans }}</p>
+                <div id="payment-redirect-inner" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const gatewayRadios = document.querySelectorAll('.gateway-radio');
+        const paymentCards = document.querySelectorAll('.payment-method-card');
+
+        gatewayRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                paymentCards.forEach(card => card.classList.remove('selected'));
+                this.closest('.payment-method-card')?.classList.add('selected');
+            });
+        });
+    });
+
+    function onOrderCheckout(result) {
+        if (result.invoice_hash) {
+            const redirectModalEl = document.getElementById('payment-redirect-modal');
+            const bsModal = new bootstrap.Modal(redirectModalEl);
+            bsModal.show();
+
+            FOSSBilling.api.guest.post('invoice/payment', {
+                hash: result.invoice_hash,
+                gateway_id: result.gateway_id,
+                auto_redirect: true
+            }, function(r) {
+                if (r.iframe) {
+                    document.getElementById('payment-redirect-inner').innerHTML = r.result;
+                } else {
+                    const banklink = '{{ "invoice/banklink"|url }}' + '/' + result.invoice_hash + '/' + result.gateway_id;
+                    window.location.href = banklink;
+                }
+            });
+        } else if (result.order_id) {
+            window.location.href = ('{{ "order/service/manage"|url }}' + '/' + result.order_id);
+        } else {
+            window.location.href = '{{ "invoice"|url }}';
+        }
+    }
+    </script>
+{% endif %}

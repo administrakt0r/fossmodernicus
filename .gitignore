@@ -1,0 +1,18 @@
+# Local Environment & Logs
+.env
+*.log
+.docker/
+data/cache/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Node / Build tools
+# Build and distribution archives
+dist/
+*.zip

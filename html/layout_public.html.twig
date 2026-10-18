@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="{{ active_locale|default('en') }}" data-palette="{{ settings.color_scheme|default('corporate') }}" data-theme="{{ settings.default_theme_mode|default('light') }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block meta_title %}{% endblock %} - {{ company.name|default('Client Portal') }}</title>
+
+    <meta name="description" content="{% block meta_description %}{{ settings.meta_description|default('Client portal sign in, registration, and account recovery.') }}{% endblock %}">
+    <meta property="fossbilling:url" content="{{ constant('SYSTEM_URL') }}">
+    <meta name="csrf-token" content="{{ CSRFToken }}">
+    <meta name="robots" content="{{ settings.meta_robots|default('index, follow') }}">
+
+    {% if guest.system_company.favicon_url %}
+        <link rel="shortcut icon" href="{{ guest.system_company.favicon_url }}">
+    {% else %}
+        <link rel="shortcut icon" href="{{ 'img/logo.svg'|asset_url }}">
+    {% endif %}
+
+    {{ render_widgets('client.theme.head.start') }}
+
+    <link rel="stylesheet" href="{{ 'css/tabler.min.css'|asset_url }}">
+    <link rel="stylesheet" href="{{ 'css/theme.css'|asset_url }}">
+
+    <script src="{{ 'js/tabler.min.js'|asset_url }}" defer></script>
+    {{ 'js/fossbilling.js'|public_asset_url|script_tag }}
+    {{ 'js/api.js'|public_asset_url|script_tag }}
+
+    {% block head %}{% endblock %}
+
+    {{ render_widgets('client.theme.head.end') }}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+<a href="#main-content" class="visually-hidden-focusable btn btn-primary position-absolute top-0 start-0 m-2" style="z-index: 9999;">{{ 'Skip to main content'|trans }}</a>
+{{ render_widgets('client.theme.body.start') }}
+
+{% block body %}
+<main class="theme-auth-layout" id="main-content">
+    <div class="theme-auth-box">
+        <div class="theme-auth-logo text-center mb-4">
+            <a href="{{ '/'|url }}" class="d-inline-block text-decoration-none">
+                {% if settings.custom_logo_url %}
+                    <img src="{{ settings.custom_logo_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="44" style="height: 44px; width: auto; max-width: 100%;">
+                {% elseif guest.system_company.logo_url %}
+                    <img src="{{ guest.system_company.logo_url }}" alt="{{ guest.system_company.name|default('Client Portal') }}" width="160" height="44" style="height: 44px; width: auto; max-width: 100%;">
+                {% elseif company.logo_url %}
+                    <img src="{{ company.logo_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="44" style="height: 44px; width: auto; max-width: 100%;">
+                {% else %}
+                    <img src="{{ 'img/logo.svg'|asset_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="44" style="height: 44px; width: auto; max-width: 100%;">
+                {% endif %}
+            </a>
+        </div>
+
+        <div class="theme-card">
+            <div class="theme-card-body p-4">
+                {% include 'partial_message.html.twig' %}
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+
+        <div class="text-center mt-3 text-muted small">
+            <div>
+                &copy; {{ 'now'|date('Y') }} {{ company.signature|default(company.name|default('Client Portal')) }}. {{ 'All rights reserved.'|trans }}
+            </div>
+            <div class="mt-1">
+                {{ 'Theme'|trans }} <span class="fw-medium">FossModernicus</span> {{ 'by'|trans }} <a href="https://wpineu.com" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-underline">WPinEU.com</a>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+<div class="wait" style="display:none" onclick="this.style.display='none'">
+    <div class="spinner-border" style="color: var(--primary);"></div>
+</div>
+
+<script src="{{ 'js/theme.js'|asset_url }}"></script>
+
+{% if settings.custom_css %}
+    <style>{{ settings.custom_css|raw }}</style>
+{% endif %}
+
+{{ render_widgets('client.theme.body.end') }}
+</body>
+</html>

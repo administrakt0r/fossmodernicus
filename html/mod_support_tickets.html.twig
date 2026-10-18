@@ -1,0 +1,176 @@
+{% extends request.ajax ? "layout_blank.html.twig" : "layout_default.html.twig" %}
+{% set active_menu = 'support' %}
+{% import "macro_functions.html.twig" as mf %}
+
+{% block meta_title %}{{ 'Support Tickets'|trans }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ ''|url }}">{{ 'Dashboard'|trans }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ 'Support'|trans }}</li>
+{% endblock %}
+
+{% block head %}
+    {{ wysiwyg('.editor-textarea') }}
+{% endblock %}
+
+{% block content %}
+    {% set tickets = client.support_ticket_get_list({"per_page":15, "page":request.page, "deep":0, "include_first":0}) %}
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">{{ 'Support Tickets'|trans }}</h1>
+            <p class="text-muted small mb-0">{{ 'Need technical assistance or have billing questions? Submit a ticket and our team will assist you.'|trans }}</p>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#open-ticket-modal">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                <span>{{ 'Open New Ticket'|trans }}</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="card theme-card border-0 shadow-sm">
+        <div class="card-body p-0">
+            {% if tickets.list %}
+                <div class="table-responsive">
+                    <table class="table table-vcenter table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">{{ 'Ticket'|trans }}</th>
+                                <th>{{ 'Subject'|trans }}</th>
+                                <th>{{ 'Department'|trans }}</th>
+                                <th>{{ 'Status'|trans }}</th>
+                                <th>{{ 'Last Updated'|trans }}</th>
+                                <th class="w-1 text-end">{{ 'Action'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for ticket in tickets.list %}
+                            <tr>
+                                <td>
+                                    <span class="text-muted fw-semibold">#{{ ticket.id }}</span>
+                                </td>
+                                <td>
+                                    <a href="{{ ('support/ticket/' ~ ticket.id)|url }}" class="fw-semibold text-reset">
+                                        {{ ticket.subject }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary-lt">{{ ticket.helpdesk.name }}</span>
+                                </td>
+                                <td>{{ mf.status_badge(ticket.status, 'ticket') }}</td>
+                                <td class="text-muted small">{{ ticket.updated_at ? ticket.updated_at|timeago ~ ' ' ~ 'ago'|trans : ticket.created_at|timeago ~ ' ' ~ 'ago'|trans }}</td>
+                                <td class="text-end">
+                                    {% if ticket.status == 'closed' %}
+                                        <a href="{{ ('support/ticket/' ~ ticket.id)|url }}" class="btn btn-sm btn-outline-secondary">
+                                            {{ 'View'|trans }}
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ ('support/ticket/' ~ ticket.id)|url }}#reply-to" class="btn btn-sm btn-outline-primary">
+                                            {{ 'Reply'|trans }}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if tickets.pages > 1 %}
+                    <div class="card-footer bg-transparent border-top p-3">
+                        {{ include('partial_pagination.html.twig', { 'list': tickets, 'url': 'support' }) }}
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-3 text-secondary" width="48" height="48" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M4 21v-13a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-9l-4 4" />
+                        <line x1="12" y1="11" x2="12" y2="11.01" />
+                        <line x1="8" y1="11" x2="8" y2="11.01" />
+                        <line x1="16" y1="11" x2="16" y2="11.01" />
+                    </svg>
+                    <h4 class="fw-semibold">{{ 'No Support Tickets Found'|trans }}</h4>
+                    <p class="text-muted small mb-3">{{ 'You do not have any open or previous support requests.'|trans }}</p>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#open-ticket-modal">
+                        {{ 'Open Your First Ticket'|trans }}
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- New Ticket Modal -->
+    <div class="modal fade" id="open-ticket-modal" tabindex="-1" aria-labelledby="openTicketModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="openTicketModalLabel">{{ 'Submit a Support Request'|trans }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
+                </div>
+                <form id="ticket-submit" method="post">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="support-helpdesk-id">{{ 'Department'|trans }}</label>
+                            {{ mf.selectbox('support_helpdesk_id', client.support_helpdesk_get_pairs, request.support_helpdesk_id, 1) }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="subject">{{ 'Subject'|trans }}</label>
+                            <input type="text" name="subject" class="form-control" id="subject" required value="{{ request.subject|e }}" placeholder="{{ 'Brief summary of your inquiry'|trans }}">
+                        </div>
+                        {% if guest.support_kb_suggestions_enabled({ 'area': 'ticket' }) %}
+                            {{ include('mod_support_kb_suggestions.html.twig', { 'input_id': 'subject' }) }}
+                        {% endif %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="message">{{ 'Description / Message'|trans }}</label>
+                            <textarea name="content" class="editor-textarea form-control" id="message" rows="6" required placeholder="{{ 'Provide as much detail as possible to help us resolve your issue quickly...'|trans }}">{{ request.content|e }}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-surface">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-ticket">{{ 'Submit Ticket'|trans }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const submitTicket = document.getElementById('ticket-submit');
+        const submitBtn = document.getElementById('btn-submit-ticket');
+
+        if (submitTicket) {
+            submitTicket.addEventListener('submit', (event) => {
+                event.preventDefault();
+                submitBtn.disabled = true;
+                submitBtn.textContent = `{{ 'Submitting...'|trans }}`;
+
+                FOSSBilling.api.client.post(
+                    'support/ticket_create',
+                    FOSSBilling.tools.serializeFormDataToObject(new FormData(submitTicket)),
+                    (res) => {
+                        window.location = "{{ 'support/ticket'|url }}/" + res;
+                    },
+                    (res) => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = `{{ 'Submit Ticket'|trans }}`;
+                        FOSSBilling.message(`${res.message} (${res.code})`, 'error');
+                    }
+                );
+            });
+        }
+
+        {% if request.ticket %}
+            const ticketModal = new bootstrap.Modal('#open-ticket-modal');
+            ticketModal.show();
+        {% endif %}
+    });
+</script>
+{% endblock %}

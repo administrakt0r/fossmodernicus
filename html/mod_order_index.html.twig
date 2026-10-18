@@ -1,0 +1,48 @@
+{% extends request.ajax ? "layout_blank.html.twig" : "layout_default.html.twig" %}
+{% set active_menu = 'order' %}
+{% set cart = guest.cart_get %}
+
+{# Determine current step in ordering workflow #}
+{% if request.checkout is defined and request.checkout == '1' %}
+    {% set current_step = 3 %}
+{% elseif request.product is defined and request.product %}
+    {% set current_step = 2 %}
+    {% set product = guest.product_get({ "id": request.product }) %}
+{% else %}
+    {% set current_step = 1 %}
+{% endif %}
+
+{% block meta_title %}
+    {% if current_step == 3 %}
+        {{ 'Review & Checkout'|trans }}
+    {% elseif current_step == 2 and product is defined %}
+        {{ 'Configure'|trans }} {{ product.title }}
+    {% else %}
+        {{ 'Order New Services'|trans }}
+    {% endif %}
+{% endblock %}
+
+{% block meta_description %}{{ 'Browse high performance web hosting, cloud servers, and domain services with instant setup.'|trans }}{% endblock %}
+
+{% block breadcrumb_item %}
+    <a href="{{ 'order'|url }}" class="text-reset text-decoration-none">{{ 'Order'|trans }}</a>
+    {% if current_step == 2 and product is defined %}
+        <span>/</span> <span>{{ product.title }}</span>
+    {% elseif current_step == 3 %}
+        <span>/</span> <span>{{ 'Checkout'|trans }}</span>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="theme-order-container">
+        {{ include('partials/order_stepper.html.twig', { current_step: current_step, cart: cart }) }}
+
+        {% if current_step == 3 %}
+            {{ include('partials/order_checkout.html.twig', { cart: cart }) }}
+        {% elseif current_step == 2 and product is defined %}
+            {{ include('partials/order_configure.html.twig', { product: product, cart: cart }) }}
+        {% else %}
+            {{ include('partials/order_catalog.html.twig', { cart: cart }) }}
+        {% endif %}
+    </div>
+{% endblock %}

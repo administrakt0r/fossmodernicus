@@ -1,0 +1,58 @@
+<footer class="theme-footer">
+    <div class="container-fluid">
+        {{ render_widgets('client.theme.footer.start') }}
+
+        {% if company.bank_info_pagebottom == 1 %}
+            <div class="p-2 mb-3 rounded bg-surface border small text-muted text-center">
+                <strong>{{ 'Payment Information'|trans }}</strong> &mdash; 
+                {{ 'Bank'|trans }}: {{ company.bank_name|default('') }} | 
+                {{ 'BIC / SWIFT'|trans }}: {{ company.bic|default('') }} | 
+                {{ 'Account'|trans }}: {{ company.account_number|default('') }}
+            </div>
+        {% endif %}
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-1">
+                <span>
+                    {% if settings.footer_copyright %}
+                        &copy; {{ 'now'|date('Y') }} {{ settings.footer_copyright }}
+                    {% else %}
+                        &copy; {{ 'now'|date('Y') }} {{ company.signature|default(company.name|default('Client Portal')) }}. {{ 'All rights reserved.'|trans }}
+                    {% endif %}
+                </span>
+                <span class="d-none d-md-inline text-muted mx-1">&bull;</span>
+                <span class="theme-credits small text-muted">
+                    {{ 'Theme'|trans }} <span class="fw-medium">FossModernicus</span> {{ 'by'|trans }} <a href="https://wpineu.com" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-underline">WPinEU.com</a>
+                </span>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-2 small">
+                <a href="{{ '/'|url }}" class="text-muted text-decoration-none theme-footer-link">{{ 'Home'|trans }}</a>
+                <a href="{{ 'support'|url }}" class="text-muted text-decoration-none theme-footer-link">{{ 'Support'|trans }}</a>
+                {% if guest.extension_is_on({ "mod": "kb" }) or guest.extension_is_on({ "mod": "support" }) %}
+                    <a href="{{ 'support/kb'|url }}" class="text-muted text-decoration-none theme-footer-link">{{ 'Knowledgebase'|trans }}</a>
+                {% endif %}
+
+                {% for i in 1..5 %}
+                    {% set enabled_key = 'footer_link_' ~ i ~ '_enabled' %}
+                    {% set page_key = 'footer_link_' ~ i ~ '_page' %}
+                    {% set title_key = 'footer_link_' ~ i ~ '_title' %}
+                    {% set link_enabled = attribute(settings, enabled_key) is defined ? attribute(settings, enabled_key) : false %}
+                    {% if link_enabled %}
+                        {% set link_page = attribute(settings, page_key)|default('') %}
+                        {% set link_title = attribute(settings, title_key)|default('') %}
+                        {% if 'http://' in link_page or 'https://' in link_page %}
+                            <a class="text-muted text-decoration-none theme-footer-link" href="{{ link_page }}" target="_blank" rel="noopener">{{ link_title }}</a>
+                        {% else %}
+                            <a class="text-muted text-decoration-none theme-footer-link" href="{{ link_page|url }}">{{ link_title }}</a>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="theme-footer-branding text-center">
+            {{ render_widgets('client.theme.footer.end') }}
+        </div>
+    </div>
+</footer>

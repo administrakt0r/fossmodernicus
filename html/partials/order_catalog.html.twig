@@ -1,0 +1,201 @@
+{# Product Catalogue & Plan Selection #}
+{% set categories = guest.product_category_get_list.list %}
+{% set cart_currency = guest.cart_get_currency %}
+{% set periods = guest.system_periods %}
+
+{% if cart.items|length > 0 %}
+    <div class="theme-card p-3 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3" style="background-color: var(--primary-subtle); border: 1px solid var(--primary); border-left: 4px solid var(--primary);">
+        <div class="d-flex align-items-center gap-2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary);"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <div>
+                <strong>{{ 'You have'|trans }} {{ cart.items|length }} {{ 'item(s) in your shopping cart.'|trans }}</strong>
+                <span class="d-none d-sm-inline text-muted ms-1">({{ 'Total:'|trans }} {{ (cart.total * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }})</span>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ 'order'|url({ checkout: 1 }) }}" class="theme-btn theme-btn-primary theme-btn-sm">
+                {{ 'Proceed to Checkout'|trans }}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+        </div>
+    </div>
+{% endif %}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <h1 class="h3 fw-bold mb-1">{{ 'Choose a Service Plan'|trans }}</h1>
+        <p class="text-muted small mb-0">{{ 'Select the plan that fits your requirements. You can upgrade or downgrade at any time.'|trans }}</p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+        <label for="order-currency-selector" class="small text-muted text-nowrap">{{ 'Currency:'|trans }}</label>
+        <select id="order-currency-selector" class="form-select form-select-sm" style="min-width: 110px;" onchange="FOSSBilling.api.guest.post('cart/set_currency', { currency: this.value }, () => location.reload())">
+            {% for code, title in guest.currency_get_pairs %}
+                <option value="{{ code }}" {% if code == cart_currency.code %}selected{% endif %}>{{ code }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+{% if categories|length > 1 %}
+    <ul class="nav nav-pills gap-2 mb-4 order-category-pills" id="order-cat-pills" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pill-all-tab" data-bs-toggle="pill" data-bs-target="#pill-all" type="button" role="tab" aria-selected="true">
+                {{ 'All Plans'|trans }}
+            </button>
+        </li>
+        {% for cat in categories %}
+            {% if cat.products|length > 0 %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pill-cat-{{ cat.id }}-tab" data-bs-toggle="pill" data-bs-target="#pill-cat-{{ cat.id }}" type="button" role="tab" aria-selected="false">
+                        {{ cat.title }}
+                        <span class="badge bg-secondary-lt ms-1">{{ cat.products|length }}</span>
+                    </button>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<div class="tab-content">
+    {# All Plans Tab #}
+    <div class="tab-pane fade show active" id="pill-all" role="tabpanel" aria-labelledby="pill-all-tab">
+        <div class="row g-4">
+            {% for cat in categories %}
+                {% for product in cat.products|sort((a, b) => a.priority <=> b.priority) %}
+                    <div class="col-12 col-md-6 col-xl-4 d-flex">
+                        <div class="theme-card theme-product-card d-flex flex-column w-100">
+                            <div class="product-card-header p-4 pb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-primary-lt fw-medium">{{ cat.title }}</span>
+                                    {% if product.stock_control and product.quantity_in_stock <= 3 and product.quantity_in_stock > 0 %}
+                                        <span class="badge bg-warning-lt">{{ 'Low Stock'|trans }}</span>
+                                    {% endif %}
+                                </div>
+                                <h2 class="h5 fw-bold mb-1">{{ product.title }}</h2>
+                            </div>
+
+                            <div class="product-card-pricing px-4 py-3 border-top border-bottom border-subtle bg-subtle">
+                                {% if product.pricing.type == 'recurrent' %}
+                                    {% set lowest_price = null %}
+                                    {% set lowest_period = null %}
+                                    {% for code in ['1M', '3M', '6M', '1Y', '2Y', '3Y'] %}
+                                        {% if product.pricing.recurrent[code] is defined and product.pricing.recurrent[code].enabled %}
+                                            {% if lowest_price is null or product.pricing.recurrent[code].price < lowest_price %}
+                                                {% set lowest_price = product.pricing.recurrent[code].price %}
+                                                {% set lowest_period = code %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if lowest_price is not null %}
+                                        <div class="d-flex align-items-baseline gap-1">
+                                            <span class="fs-2 fw-bold text-main">{{ (lowest_price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                                            <span class="text-muted small">/ {{ periods[lowest_period]|default('month')|lower }}</span>
+                                        </div>
+                                    {% endif %}
+                                {% elseif product.pricing.type == 'once' %}
+                                    <div class="d-flex align-items-baseline gap-1">
+                                        <span class="fs-2 fw-bold text-main">{{ (product.pricing.once.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                                        <span class="text-muted small">{{ 'One-time'|trans }}</span>
+                                    </div>
+                                {% elseif product.pricing.type == 'free' %}
+                                    <div class="d-flex align-items-baseline gap-1">
+                                        <span class="fs-2 fw-bold text-success">{{ 'Free'|trans }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="product-card-body p-4 d-flex flex-column flex-grow-1 justify-content-between">
+                                <div class="product-features mb-4">
+                                    {% if product.description %}
+                                        <div class="product-features-list small">
+                                            {{ (product.description ?? '')|markdown_to_html }}
+                                        </div>
+                                    {% else %}
+                                        <p class="text-muted small mb-0">{{ 'Instant provisioning, automated backups, and 24/7 dedicated support.'|trans }}</p>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mt-auto">
+                                    <a href="{{ 'order'|url({ product: product.id }) }}" class="theme-btn theme-btn-primary w-100 justify-content-center">
+                                        <span>{{ 'Configure Plan'|trans }}</span>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ms-1"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+
+    {# Per Category Tabs #}
+    {% for cat in categories %}
+        {% if cat.products|length > 0 %}
+            <div class="tab-pane fade" id="pill-cat-{{ cat.id }}" role="tabpanel" aria-labelledby="pill-cat-{{ cat.id }}-tab">
+                {% if cat.description %}
+                    <div class="mb-4 text-muted small">{{ (cat.description ?? '')|markdown_to_html }}</div>
+                {% endif %}
+                <div class="row g-4">
+                    {% for product in cat.products|sort((a, b) => a.priority <=> b.priority) %}
+                        <div class="col-12 col-md-6 col-xl-4 d-flex">
+                            <div class="theme-card theme-product-card d-flex flex-column w-100">
+                                <div class="product-card-header p-4 pb-3">
+                                    <h2 class="h5 fw-bold mb-1">{{ product.title }}</h2>
+                                </div>
+
+                                <div class="product-card-pricing px-4 py-3 border-top border-bottom border-subtle bg-subtle">
+                                    {% if product.pricing.type == 'recurrent' %}
+                                        {% set lowest_price = null %}
+                                        {% set lowest_period = null %}
+                                        {% for code in ['1M', '3M', '6M', '1Y', '2Y', '3Y'] %}
+                                            {% if product.pricing.recurrent[code] is defined and product.pricing.recurrent[code].enabled %}
+                                                {% if lowest_price is null or product.pricing.recurrent[code].price < lowest_price %}
+                                                    {% set lowest_price = product.pricing.recurrent[code].price %}
+                                                    {% set lowest_period = code %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if lowest_price is not null %}
+                                            <div class="d-flex align-items-baseline gap-1">
+                                                <span class="fs-2 fw-bold text-main">{{ (lowest_price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                                                <span class="text-muted small">/ {{ periods[lowest_period]|default('month')|lower }}</span>
+                                            </div>
+                                        {% endif %}
+                                    {% elseif product.pricing.type == 'once' %}
+                                        <div class="d-flex align-items-baseline gap-1">
+                                            <span class="fs-2 fw-bold text-main">{{ (product.pricing.once.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                                            <span class="text-muted small">{{ 'One-time'|trans }}</span>
+                                        </div>
+                                    {% elseif product.pricing.type == 'free' %}
+                                        <div class="d-flex align-items-baseline gap-1">
+                                            <span class="fs-2 fw-bold text-success">{{ 'Free'|trans }}</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="product-card-body p-4 d-flex flex-column flex-grow-1 justify-content-between">
+                                    <div class="product-features mb-4">
+                                        {% if product.description %}
+                                            <div class="product-features-list small">
+                                                {{ (product.description ?? '')|markdown_to_html }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <a href="{{ 'order'|url({ product: product.id }) }}" class="theme-btn theme-btn-primary w-100 justify-content-center">
+                                            <span>{{ 'Configure Plan'|trans }}</span>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ms-1"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>

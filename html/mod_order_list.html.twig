@@ -1,0 +1,105 @@
+{% extends request.ajax ? "layout_blank.html.twig" : "layout_default.html.twig" %}
+{% set active_menu = 'services' %}
+{% import "macro_functions.html.twig" as mf %}
+
+{% block meta_title %}{{ 'Services'|trans }}{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ ''|url }}">{{ 'Dashboard'|trans }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ 'Services'|trans }}</li>
+{% endblock %}
+
+{% block content %}
+    {% set orders = client.order_get_list({"per_page":15, "page":request.page, "hide_addons":1}) %}
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">{{ 'My Services'|trans }}</h1>
+            <p class="text-muted small mb-0">{{ 'Manage your active subscriptions, hosting packages, domains, and cloud services.'|trans }}</p>
+        </div>
+        <div>
+            <a href="{{ 'order'|url }}" class="btn btn-primary d-flex align-items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                <span>{{ 'Order New Service'|trans }}</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="card theme-card border-0 shadow-sm">
+        <div class="card-body p-0">
+            {% if orders.list %}
+                <div class="table-responsive">
+                    <table class="table table-vcenter table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 90px;">{{ 'Order #'|trans }}</th>
+                                <th>{{ 'Service'|trans }}</th>
+                                <th>{{ 'Price'|trans }}</th>
+                                <th>{{ 'Billing Cycle'|trans }}</th>
+                                <th>{{ 'Renewal Date'|trans }}</th>
+                                <th>{{ 'Status'|trans }}</th>
+                                <th class="w-1 text-end">{{ 'Action'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for order in orders.list %}
+                            <tr>
+                                <td>
+                                    <a href="{{ ('order/service/manage/' ~ order.id)|url }}" class="fw-semibold text-reset">
+                                        #{{ order.id }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">{{ order.title }}</div>
+                                </td>
+                                <td class="fw-medium">
+                                    {{ order.total|format_currency(order.currency ?? default_currency) }}
+                                </td>
+                                <td class="text-muted small">
+                                    {{ order.period ? order.period|period_title : '-' }}
+                                </td>
+                                <td class="text-muted small">
+                                    {% if order.expires_at %}
+                                        {{ order.expires_at|format_date }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ mf.status_badge(order.status, 'order') }}</td>
+                                <td class="text-end">
+                                    <a href="{{ ('order/service/manage/' ~ order.id)|url }}" class="btn btn-sm btn-outline-primary">
+                                        {{ 'Manage'|trans }}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if orders.pages > 1 %}
+                    <div class="card-footer bg-transparent border-top p-3">
+                        {{ include('partial_pagination.html.twig', { 'list': orders, 'url': 'order' }) }}
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-3 text-secondary" width="48" height="48" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="8" rx="3" />
+                        <rect x="3" y="12" width="18" height="8" rx="3" />
+                        <line x1="7" y1="8" x2="7" y2="8.01" />
+                        <line x1="7" y1="16" x2="7" y2="16.01" />
+                    </svg>
+                    <h4 class="fw-semibold">{{ 'No Active Services'|trans }}</h4>
+                    <p class="text-muted small mb-3">{{ 'You do not currently have any active services or subscriptions.'|trans }}</p>
+                    <a href="{{ 'order'|url }}" class="btn btn-primary btn-sm">
+                        {{ 'Explore Product Catalog'|trans }}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

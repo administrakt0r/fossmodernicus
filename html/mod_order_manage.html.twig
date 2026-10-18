@@ -1,0 +1,349 @@
+{% extends request.ajax ? "layout_blank.html.twig" : "layout_default.html.twig" %}
+{% set active_menu = 'services' %}
+{% import "macro_functions.html.twig" as mf %}
+
+{% block meta_title %}{{ order.title }}{% endblock %}
+
+{% set addons = client.order_addons({ "id": order.id }) %}
+{% set service_partial = "mod_service" ~ order.service_type ~ "_manage.html.twig" %}
+{% set upgradables = client.order_upgradables({ 'id': order.id }) %}
+
+{% block body_class %}order-manage{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{{ ''|url }}">{{ 'Dashboard'|trans }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ 'order/service'|url }}">{{ 'Services'|trans }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ order.title }}</li>
+{% endblock %}
+
+{% block head %}
+    {{ wysiwyg('.editor-textarea') }}
+{% endblock %}
+
+{% block content %}
+    {{ render_widgets('client.order.manage.content.start', { 'order': order }) }}
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <h1 class="h3 fw-bold mb-0">{{ order.title }}</h1>
+                {{ mf.status_badge(order.status, 'order') }}
+            </div>
+            <p class="text-muted small mb-0">{{ 'Order #%s &bull; Activated %s'|trans|format(order.id, order.activated_at ? order.activated_at|format_date : order.created_at|format_date) }}</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            {% if order.period and order.status != 'failed_renew' %}
+                <a class="btn btn-primary btn-sm d-flex align-items-center gap-1"
+                   {{ fb_api_link({href: 'invoice/renewal_invoice'|api_url(query: {order_id: order.id}), modal: {type: 'confirm', title: 'Renew Service'|trans, content: 'This will generate a renewal invoice. Continue?'|trans}, callback: 'onRenewalInvoiceCreated'}) }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                        <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+                    </svg>
+                    <span>{{ 'Renew Now'|trans }}</span>
+                </a>
+                <script>window.onRenewalInvoiceCreated = (hash) => { window.location = "{{ 'invoice'|url }}/" + hash; };</script>
+            {% endif %}
+
+            {% if upgradables %}
+                <button class="btn btn-outline-success btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#upgrade-request-modal">
+                    {{ 'Upgrade'|trans }}
+                </button>
+            {% endif %}
+
+            <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#open-ticket-modal">
+                {{ 'Contact Support'|trans }}
+            </button>
+
+            {% if order.status == 'active' %}
+                <button class="btn btn-outline-danger btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#cancel-request-modal">
+                    {{ 'Cancel Service'|trans }}
+                </button>
+            {% endif %}
+            {{ render_widgets('client.order.manage.actions.end', { 'order': order }) }}
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card theme-card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-bottom p-3">
+                    <h3 class="card-title h5 mb-0 fw-bold">{{ 'Service Overview'|trans }}</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-vcenter mb-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted" style="width: 40%;">{{ 'Order Number'|trans }}</td>
+                                <td class="fw-semibold">#{{ order.id }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">{{ 'Billing Cycle'|trans }}</td>
+                                <td class="fw-medium">{{ order.period ? order.period|period_title : '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">{{ 'Recurring Amount'|trans }}</td>
+                                <td class="fw-bold text-primary">{{ order.total|format_currency(order.currency ?? default_currency) }}</td>
+                            </tr>
+                            {% if order.period %}
+                                <tr>
+                                    <td class="text-muted">{{ 'Next Due Date'|trans }}</td>
+                                    <td class="fw-medium">
+                                        {% if order.expires_at %}
+                                            {{ order.expires_at|format_date }}
+                                            <span class="text-muted small">({{ 'in %s days'|trans|format(order.expires_at|daysleft) }})</span>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                            <tr>
+                                <td class="text-muted">{{ 'Current Status'|trans }}</td>
+                                <td>{{ mf.status_badge(order.status, 'order') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {{ render_widgets('client.order.manage.details.after', { 'order': order }) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card theme-card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-bottom p-3">
+                    <h3 class="card-title h5 mb-0 fw-bold">{{ 'Service Notes'|trans }}</h3>
+                </div>
+                <div class="card-body p-4">
+                    {% if order.notes %}
+                        <div class="small">
+                            {{ order.notes|markdown_to_html }}
+                        </div>
+                    {% else %}
+                        <p class="text-muted small mb-0">{{ 'No specific administrator notes recorded for this service.'|trans }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modular Service Management (Hosting, Domain, API Key, License, etc.) #}
+    {% set service = null %}
+    {{ render_widgets('client.order.manage.service.before', { 'order': order, 'service': service }) }}
+    {% if order.status == 'active' and guest.system_template_exists({ 'file': service_partial }) %}
+        {% set service = client.order_service({ 'id': order.id }) %}
+        {% if service %}
+            <div class="mb-4">
+                {{ include(service_partial, { 'order': order, 'service': service }) }}
+            </div>
+        {% endif %}
+    {% endif %}
+    {{ render_widgets('client.order.manage.service.after', { 'order': order, 'service': service }) }}
+
+    {# Addons Table if exists #}
+    {% if order.group_master == 1 and addons|length > 0 %}
+        <div class="card theme-card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-bottom p-3">
+                <h3 class="card-title h5 mb-0 fw-bold">{{ 'Associated Addons'|trans }}</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-vcenter table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>{{ 'Addon Name'|trans }}</th>
+                                <th>{{ 'Price'|trans }}</th>
+                                <th>{{ 'Cycle'|trans }}</th>
+                                <th>{{ 'Renewal'|trans }}</th>
+                                <th>{{ 'Status'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for addon in addons %}
+                            <tr>
+                                <td class="fw-semibold">{{ addon.title }}</td>
+                                <td>{{ addon.total|format_currency(addon.currency ?? default_currency) }}</td>
+                                <td class="text-muted small">{{ addon.period ? addon.period|period_title : '-' }}</td>
+                                <td class="text-muted small">{{ addon.expires_at ? addon.expires_at|format_date : '-' }}</td>
+                                <td>{{ mf.status_badge(addon.status, 'order') }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Cancel Request Modal -->
+    <div class="modal fade" id="cancel-request-modal" tabindex="-1" aria-labelledby="cancelRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-danger" id="cancelRequestModalLabel">{{ 'Request Service Cancellation'|trans }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
+                </div>
+                <form id="cancel-request-form">
+                    <input type="hidden" name="rel_type" value="order">
+                    <input type="hidden" name="rel_id" value="{{ order.id }}">
+                    <input type="hidden" name="rel_task" value="cancel">
+                    <div class="modal-body p-4">
+                        <div class="alert alert-warning small mb-3">
+                            {{ 'Cancellation will stop renewals and mark this service for decommission. Please specify your reason.'|trans }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ 'Department'|trans }}</label>
+                            {{ mf.selectbox('support_helpdesk_id', client.support_helpdesk_get_pairs, request.support_helpdesk_id, 1) }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ 'Subject'|trans }}</label>
+                            <input class="form-control" type="text" name="subject" value="{{ 'Cancel Service'|trans }}: {{ order.title }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ 'Reason for Cancellation'|trans }}</label>
+                            <textarea name="content" rows="4" class="form-control" required placeholder="{{ 'Help us understand why you are canceling...'|trans }}"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-surface">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ 'Keep Service'|trans }}</button>
+                        <button type="submit" class="btn btn-danger">{{ 'Submit Cancellation'|trans }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upgrade Request Modal -->
+    {% if upgradables %}
+    <div class="modal fade" id="upgrade-request-modal" tabindex="-1" aria-labelledby="upgradeRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="upgradeRequestModalLabel">{{ 'Request Plan Upgrade'|trans }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
+                </div>
+                <form id="upgrade-request-form">
+                    <input type="hidden" name="rel_type" value="order">
+                    <input type="hidden" name="rel_id" value="{{ order.id }}">
+                    <input type="hidden" name="rel_task" value="upgrade">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ 'Department'|trans }}</label>
+                            {{ mf.selectbox('support_helpdesk_id', client.support_helpdesk_get_pairs, request.support_helpdesk_id, 1) }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ 'Select New Plan'|trans }}</label>
+                            {{ mf.selectbox('rel_new_value', upgradables, '', 1) }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ 'Notes / Details'|trans }}</label>
+                            <textarea name="content" rows="4" class="form-control" required>{{ 'I would like to upgrade my plan for service #' ~ order.id }}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-surface">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+                        <button type="submit" class="btn btn-success">{{ 'Submit Upgrade Request'|trans }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Open Ticket Modal for this Order -->
+    <div class="modal fade" id="open-ticket-modal" tabindex="-1" aria-labelledby="orderTicketModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="orderTicketModalLabel">{{ 'Inquire About This Service'|trans }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
+                </div>
+                <form id="open-ticket-form">
+                    <input type="hidden" name="rel_type" value="order">
+                    <input type="hidden" name="rel_id" value="{{ order.id }}">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ 'Department'|trans }}</label>
+                            {{ mf.selectbox('support_helpdesk_id', client.support_helpdesk_get_pairs, request.support_helpdesk_id, 1) }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ 'Subject'|trans }}</label>
+                            <input class="form-control" type="text" name="subject" value="{{ 'Question regarding service #' ~ order.id ~ ': ' ~ order.title }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ 'Message'|trans }}</label>
+                            <textarea class="editor-textarea form-control" name="content" rows="5" required placeholder="{{ 'Describe your request or issue...'|trans }}"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-surface">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>
+                        <button type="submit" class="btn btn-primary">{{ 'Send Message'|trans }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const cancelRequestForm = document.getElementById('cancel-request-form');
+        const upgradeRequestForm = document.getElementById('upgrade-request-form');
+        const openTicketForm = document.getElementById('open-ticket-form');
+
+        if (cancelRequestForm) {
+            cancelRequestForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                FOSSBilling.api.client.post(
+                    'support/ticket_create',
+                    FOSSBilling.tools.serializeFormDataToObject(new FormData(cancelRequestForm)),
+                    () => {
+                        flashMessage({
+                            message: `{{ 'Cancellation request received'|trans }}`,
+                            reload: true
+                        });
+                    },
+                    (res) => {
+                        FOSSBilling.message(`${res.message} (${res.code})`, 'error');
+                    }
+                );
+            });
+        }
+
+        if (upgradeRequestForm) {
+            upgradeRequestForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                FOSSBilling.api.client.post(
+                    'support/ticket_create',
+                    FOSSBilling.tools.serializeFormDataToObject(new FormData(upgradeRequestForm)),
+                    () => {
+                        flashMessage({
+                            message: `{{ 'Upgrade request received'|trans }}`,
+                            reload: true
+                        });
+                    },
+                    (res) => {
+                        FOSSBilling.message(`${res.message} (${res.code})`, 'error');
+                    }
+                );
+            });
+        }
+
+        if (openTicketForm) {
+            openTicketForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                FOSSBilling.api.client.post(
+                    'support/ticket_create',
+                    FOSSBilling.tools.serializeFormDataToObject(new FormData(openTicketForm)),
+                    (res) => {
+                        window.location = "{{ 'support/ticket'|url }}/" + res;
+                    },
+                    (res) => {
+                        FOSSBilling.message(`${res.message} (${res.code})`, 'error');
+                    }
+                );
+            });
+        }
+    });
+</script>
+{% endblock %}

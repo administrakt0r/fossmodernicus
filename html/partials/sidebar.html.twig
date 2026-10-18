@@ -1,0 +1,141 @@
+<aside class="theme-sidebar" id="theme-sidebar">
+    <div class="theme-sidebar-brand">
+        <a href="{{ '/'|url }}" class="d-flex align-items-center text-decoration-none">
+            {% if settings.custom_logo_url %}
+                <img src="{{ settings.custom_logo_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo" style="height: 40px; width: auto; max-width: 100%;">
+            {% elseif guest.system_company.logo_url %}
+                <img src="{{ guest.system_company.logo_url }}" alt="{{ guest.system_company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo" style="height: 40px; width: auto; max-width: 100%;">
+            {% elseif company.logo_url %}
+                <img src="{{ company.logo_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo" style="height: 40px; width: auto; max-width: 100%;">
+            {% else %}
+                <img src="{{ 'img/logo.svg'|asset_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo" style="height: 40px; width: auto; max-width: 100%;">
+            {% endif %}
+        </a>
+    </div>
+
+    <ul class="theme-sidebar-nav">
+        <li class="theme-nav-category">{{ 'Navigation'|trans }}</li>
+
+        <li class="theme-nav-item">
+            <a href="{{ '/'|url }}" class="theme-nav-link {% if active_menu == 'dashboard' or (active_menu is not defined and (current_page == 'index' or current_page == '' or request._route == 'index')) %}active{% endif %}">
+                <span class="theme-nav-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </span>
+                <span>{{ 'Dashboard'|trans }}</span>
+            </a>
+        </li>
+
+        <li class="theme-nav-item">
+            <a href="{{ 'order/service'|url }}" class="theme-nav-link {% if active_menu == 'services' or 'service' in current_page %}active{% endif %}">
+                <span class="theme-nav-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                </span>
+                <span>{{ 'My Services'|trans }}</span>
+            </a>
+        </li>
+
+        <li class="theme-nav-item">
+            <a href="{{ 'invoice'|url }}" class="theme-nav-link {% if active_menu == 'invoices' or 'invoice' in current_page %}active{% endif %}">
+                <span class="theme-nav-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </span>
+                <span>{{ 'Invoices'|trans }}</span>
+                {% if client %}
+                    {% set unpaid_count = client.invoice_get_list({ 'status': 'unpaid' }).total|default(0) %}
+                    {% if unpaid_count > 0 %}
+                        <span class="theme-nav-badge">{{ unpaid_count }}</span>
+                    {% endif %}
+                {% endif %}
+            </a>
+        </li>
+
+        <li class="theme-nav-item">
+            <a href="{{ 'support'|url }}" class="theme-nav-link {% if active_menu == 'support' or 'support' in current_page %}active{% endif %}">
+                <span class="theme-nav-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </span>
+                <span>{{ 'Support Tickets'|trans }}</span>
+                {% if client %}
+                    {% set open_tickets = client.support_ticket_get_list({ 'status': 'open' }).total|default(0) %}
+                    {% if open_tickets > 0 %}
+                        <span class="theme-nav-badge">{{ open_tickets }}</span>
+                    {% endif %}
+                {% endif %}
+            </a>
+        </li>
+
+        <li class="theme-nav-category">{{ 'Order & Explore'|trans }}</li>
+
+        <li class="theme-nav-item">
+            <a href="{{ 'order'|url }}" class="theme-nav-link {% if 'order' in current_page %}active{% endif %}">
+                <span class="theme-nav-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </span>
+                <span>{{ 'Order New Service'|trans }}</span>
+            </a>
+        </li>
+
+        {% if guest.extension_is_on({ "mod": "kb" }) or guest.extension_is_on({ "mod": "support" }) %}
+        <li class="theme-nav-item">
+            <a href="{{ 'support/kb'|url }}" class="theme-nav-link {% if 'kb' in current_page %}active{% endif %}">
+                <span class="theme-nav-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </span>
+                <span>{{ 'Knowledgebase'|trans }}</span>
+            </a>
+        </li>
+        {% endif %}
+
+        {% if guest.extension_is_on({ "mod": "news" }) %}
+        <li class="theme-nav-item">
+            <a href="{{ 'news'|url }}" class="theme-nav-link {% if 'news' in current_page %}active{% endif %}">
+                <span class="theme-nav-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                </span>
+                <span>{{ 'Announcements'|trans }}</span>
+            </a>
+        </li>
+        {% endif %}
+
+        <li class="theme-nav-category">{{ 'Account'|trans }}</li>
+
+        <li class="theme-nav-item">
+            <a href="{{ 'client/profile'|url }}" class="theme-nav-link {% if 'profile' in current_page %}active{% endif %}">
+                <span class="theme-nav-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+                <span>{{ 'Profile & Security'|trans }}</span>
+            </a>
+        </li>
+
+        {% if client %}
+        <li class="theme-nav-item">
+            <a href="{{ 'client/logout'|url }}" class="theme-nav-link text-danger">
+                <span class="theme-nav-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </span>
+                <span>{{ 'Sign Out'|trans }}</span>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+
+    {% if client and settings.show_client_balance != '0' %}
+    <div class="theme-sidebar-footer">
+        <div class="theme-user-profile-badge">
+            <div class="theme-avatar">
+                {{ profile.first_name|first|upper }}{{ profile.last_name|first|upper }}
+            </div>
+            <div style="min-width: 0; flex: 1;">
+                <div style="font-weight: 600; font-size: 0.8125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    {{ profile.first_name }} {{ profile.last_name }}
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">
+                    {{ 'Balance'|trans }}: <strong style="color: var(--primary);">{{ profile.balance | format_currency(profile.currency ?? default_currency) }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</aside>
+<div class="theme-backdrop" id="theme-backdrop"></div>

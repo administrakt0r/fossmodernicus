@@ -1,0 +1,474 @@
+{% set periods = guest.system_periods %}
+{% set pricing = product.pricing %}
+{% set transfer_tlds = guest.serviceDomain_tlds({ "allow_transfer": 1 }) %}
+{% set tlds = guest.serviceDomain_tlds({"allow_register": 1}) %}
+{% set currency = guest.cart_get_currency %}
+
+{# Domain Action Tabs (Register vs Transfer) #}
+<div class="domain-action-nav mb-4" role="tablist">
+    {% if tlds is not empty %}
+        <button type="button" class="domain-action-tab active" id="register-tab-btn" data-bs-toggle="pill" data-bs-target="#domain-register-pane" role="tab" aria-controls="domain-register-pane" aria-selected="true" data-action="register">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span>{{ 'Register a New Domain'|trans }}</span>
+        </button>
+    {% endif %}
+    {% if transfer_tlds is not empty %}
+        <button type="button" class="domain-action-tab {% if tlds is empty %}active{% endif %}" id="transfer-tab-btn" data-bs-toggle="pill" data-bs-target="#domain-transfer-pane" role="tab" aria-controls="domain-transfer-pane" aria-selected="{{ tlds is empty ? 'true' : 'false' }}" data-action="transfer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            <span>{{ 'Transfer Existing Domain'|trans }}</span>
+        </button>
+    {% endif %}
+</div>
+
+<div class="tab-content" id="domain-order-tab-content">
+    {# Register Tab Pane #}
+    {% if tlds is not empty %}
+        <div class="tab-pane fade show active" id="domain-register-pane" role="tabpanel" aria-labelledby="register-tab-btn">
+            <div class="p-3 mb-3 border rounded bg-surface">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <label class="form-label fw-semibold mb-0" for="domain-register-sld">
+                        {{ 'Choose Domain Name'|trans }}
+                    </label>
+                    <span class="text-muted small">
+                        {{ 'Search for your desired domain'|trans }}
+                    </span>
+                </div>
+
+                <div class="input-group mb-2">
+                    <span class="input-group-text bg-subtle text-muted">www.</span>
+                    <input type="text" name="register_sld" id="domain-register-sld" class="form-control" value="{{ request.register_sld }}" placeholder="{{ 'example'|trans }}" autocomplete="off" autocorrect="off" autocapitalize="none">
+                    <select class="form-select" name="register_tld" id="domain-register-tld" aria-label="{{ 'Domain extension TLD'|trans }}" style="max-width: 130px; font-weight: 600;">
+                        {% for tld in tlds %}
+                            <option value="{{ tld.tld }}">{{ tld.tld }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="theme-btn theme-btn-primary" type="button" id="domain-check">
+                        <span id="domain-check-text">{{ 'Check Availability'|trans }}</span>
+                        <span id="domain-check-spinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <div class="small text-muted">
+                    {{ 'Enter your brand or project name without extension, then choose your preferred TLD.'|trans }}
+                </div>
+            </div>
+
+            {# Registration Result / Configuration #}
+            <div id="domain-register-config" style="display:none;" class="onAfterDomainCheck">
+                <div class="domain-result-card domain-result-success mb-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle p-2 bg-success text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="flex-grow-1">
+                            <strong class="text-success fs-5 d-block">{{ 'Congratulations! Domain is Available.'|trans }}</strong>
+                            <span class="text-muted small">
+                                <strong id="domain-name" class="text-main font-monospace"></strong> {{ 'can be registered right now.'|trans }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {# Term Selection #}
+                <div class="p-3 mb-3 border rounded bg-surface">
+                    <label class="form-label fw-semibold mb-2" for="registration-years">
+                        {{ 'Registration Period'|trans }}
+                    </label>
+                    <select class="form-select" name="register_years" id="registration-years" aria-label="{{ 'Registration Period in Years'|trans }}"></select>
+                    <div class="form-text text-muted small mt-1">
+                        {{ 'Multi-year registration protects your brand and avoids yearly renewal price fluctuations.'|trans }}
+                    </div>
+                </div>
+
+                {# Nameservers Customization #}
+                <div class="p-3 mb-3 border rounded bg-surface">
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" role="switch" id="nameserversCb">
+                        <label class="form-check-label fw-medium text-main" for="nameserversCb">
+                            {{ 'I want to specify custom nameservers'|trans }}
+                        </label>
+                        <button type="button" class="domain-info-tooltip ms-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'Nameservers point your domain to the server hosting your website and email. By default, our high-speed nameservers are used. Only change this if you manage DNS with a third party like Cloudflare.'|trans }}" aria-label="{{ 'Nameservers information'|trans }}">?</button>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        {{ 'By default, we automatically assign our high-availability nameservers for immediate DNS routing.'|trans }}
+                    </p>
+
+                    <div id="nameservers" class="row g-2 mt-2" style="display:none;">
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label small text-muted mb-1" for="domain_ns1">{{ 'Nameserver 1'|trans }}</label>
+                            <input class="form-control font-monospace" type="text" id="domain_ns1" name="ns1" value="" placeholder="ns1.example.com">
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label small text-muted mb-1" for="domain_ns2">{{ 'Nameserver 2'|trans }}</label>
+                            <input class="form-control font-monospace" type="text" id="domain_ns2" name="ns2" value="" placeholder="ns2.example.com">
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label small text-muted mb-1" for="domain_ns3">{{ 'Nameserver 3 (Optional)'|trans }}</label>
+                            <input class="form-control font-monospace" type="text" id="domain_ns3" name="ns3" value="" placeholder="ns3.example.com">
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label small text-muted mb-1" for="domain_ns4">{{ 'Nameserver 4 (Optional)'|trans }}</label>
+                            <input class="form-control font-monospace" type="text" id="domain_ns4" name="ns4" value="" placeholder="ns4.example.com">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Error Alert Box #}
+            <div id="domain-register-error" class="domain-result-card domain-result-danger mb-3" style="display:none;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle p-2 bg-danger text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </div>
+                    <div>
+                        <strong class="text-danger d-block">{{ 'Domain Unavailable'|trans }}</strong>
+                        <span id="domain-register-error-msg" class="text-muted small">
+                            {{ 'This domain name is already registered or unavailable. Please try another domain name or extension.'|trans }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Transfer Tab Pane #}
+    {% if transfer_tlds is not empty %}
+        <div class="tab-pane fade {% if tlds is empty %}show active{% endif %}" id="domain-transfer-pane" role="tabpanel" aria-labelledby="transfer-tab-btn">
+            <div class="p-3 mb-3 border rounded bg-surface">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <label class="form-label fw-semibold mb-0" for="domain-transfer-sld">
+                        {{ 'Domain to Transfer'|trans }}
+                    </label>
+                    <span class="text-muted small">
+                        {{ 'Transfer from your current registrar'|trans }}
+                    </span>
+                </div>
+
+                <div class="input-group mb-2">
+                    <span class="input-group-text bg-subtle text-muted">www.</span>
+                    <input type="text" name="transfer_sld" id="domain-transfer-sld" class="form-control" value="{{ request.transfer_sld }}" placeholder="{{ 'existingdomain'|trans }}" autocomplete="off" autocorrect="off" autocapitalize="none">
+                    <select class="form-select" name="transfer_tld" id="domain-transfer-tld" aria-label="{{ 'Transfer domain extension TLD'|trans }}" style="max-width: 130px; font-weight: 600;">
+                        {% for tld in transfer_tlds %}
+                            <option value="{{ tld.tld }}" data-require-transfer-code="{{ tld.require_transfer_code ? '1' : '0' }}">{{ tld.tld }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="theme-btn theme-btn-primary" type="button" id="transfer-check">
+                        <span id="transfer-check-text">{{ 'Check Transfer'|trans }}</span>
+                        <span id="transfer-check-spinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <div class="small text-muted">
+                    {{ 'Consolidate your domain management with us. Transfers usually extend your registration by 1 year.'|trans }}
+                </div>
+            </div>
+
+            {# Transfer Result / Configuration #}
+            <div id="domain-transfer-config" style="display:none;">
+                <div class="domain-result-card domain-result-success mb-3">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle p-2 bg-success text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div>
+                                <strong class="text-success d-block">{{ 'Domain Eligible for Transfer'|trans }}</strong>
+                                <span class="text-muted small">{{ 'Transfer price is'|trans }}: <strong class="text-main" id="transfer-price"></strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 mb-3 border rounded bg-surface">
+                    <label class="form-label fw-semibold d-flex align-items-center gap-2 mb-1" for="transfer-code">
+                        <span>{{ 'Authorization / EPP Code'|trans }}</span>
+                        <button type="button" class="domain-info-tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'An EPP or Authorization code is a security key provided by your current registrar proving domain ownership. You can find it in your current registrar dashboard or request it from their support.'|trans }}" aria-label="{{ 'EPP code information'|trans }}">?</button>
+                    </label>
+                    <input class="form-control font-monospace" type="text" name="transfer_code" id="transfer-code" value="{{ request.transfer_code }}" placeholder="{{ 'Enter domain transfer code'|trans }}">
+                    <div class="form-hint small text-muted mt-2" id="transfer-code-hint">
+                        {{ 'This TLD requires an authorization code (EPP / Auth code) from your current registrar to initiate transfer.'|trans }}
+                    </div>
+
+                    <div class="domain-helper-box mt-3">
+                        <strong class="d-block text-main mb-1">{{ 'Pre-transfer Checklist'|trans }}:</strong>
+                        <ul class="mb-0 ps-3">
+                            <li>{{ 'Ensure your domain is unlocked at your current registrar.'|trans }}</li>
+                            <li>{{ 'Disable WHOIS privacy protection temporarily so transfer confirmation email can be delivered.'|trans }}</li>
+                            <li>{{ 'Ensure the domain was not registered or transferred in the last 60 days (ICANN rule).'|trans }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {# Transfer Error Alert #}
+            <div id="domain-transfer-error" class="domain-result-card domain-result-danger mb-3" style="display:none;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle p-2 bg-danger text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </div>
+                    <div>
+                        <strong class="text-danger d-block">{{ 'Transfer Ineligible'|trans }}</strong>
+                        <span id="domain-transfer-error-msg" class="text-muted small">
+                            {{ 'This domain cannot be transferred at this time. Please ensure the domain name is spelled correctly and is active.'|trans }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<input type="hidden" name="id" value="{{ product.id }}">
+<input type="hidden" name="action" value="register" id="domain-action">
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const currencyFormat = JSON.parse('{{ currency|json_encode|e('js') }}');
+    const domainAction = document.getElementById('domain-action');
+    const configNext = document.getElementById('config-next');
+
+    // Initially disable or hide configure next until domain validation succeeds
+    if (configNext) {
+        configNext.disabled = true;
+    }
+
+    // Tab buttons handler
+    document.querySelectorAll('.domain-action-tab').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.domain-action-tab').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const action = this.dataset.action;
+            if (domainAction) domainAction.value = action;
+            if (configNext) configNext.disabled = true;
+        });
+    });
+
+    // Nameservers toggle switch
+    const nsSwitch = document.getElementById('nameserversCb');
+    const nsContainer = document.getElementById('nameservers');
+    if (nsSwitch && nsContainer) {
+        nsSwitch.addEventListener('change', function () {
+            nsContainer.style.display = this.checked ? 'flex' : 'none';
+        });
+    }
+
+    const formatCurrency = (price, rate, code, multiply) => {
+        let total = parseFloat(price) * parseFloat(rate);
+        if (typeof multiply !== 'undefined') {
+            total *= multiply;
+        }
+        return FOSSBilling.currency.format(total, {
+            ...currencyFormat,
+            code: code,
+        });
+    };
+
+    function updateTransferCodeRequirement() {
+        const tldSelect = document.querySelector('select[name="transfer_tld"]');
+        const selectedOption = tldSelect && tldSelect.options[tldSelect.selectedIndex];
+        const requiresTransferCode = selectedOption && selectedOption.dataset.requireTransferCode === '1';
+        const transferCodeInput = document.getElementById('transfer-code');
+        const transferCodeHint = document.getElementById('transfer-code-hint');
+        if (transferCodeInput) transferCodeInput.required = requiresTransferCode;
+        if (transferCodeHint) transferCodeHint.style.display = requiresTransferCode ? '' : 'none';
+    }
+
+    const transferTldSelect = document.querySelector('select[name="transfer_tld"]');
+    if (transferTldSelect) {
+        transferTldSelect.addEventListener('change', updateTransferCodeRequirement);
+    }
+
+    // Check Availability (Registration)
+    const domainCheckBtn = document.getElementById('domain-check');
+    if (domainCheckBtn) {
+        domainCheckBtn.addEventListener('click', function () {
+            const sldInput = document.querySelector('input[name="register_sld"]');
+            const tldSelect = document.querySelector('select[name="register_tld"]');
+            const sld = sldInput ? sldInput.value.trim().toLowerCase() : '';
+            const tld = tldSelect ? tldSelect.value.trim().toLowerCase() : '';
+
+            if (!sld) {
+                sldInput.focus();
+                return;
+            }
+
+            const domain = sld + tld;
+            if (domainAction) domainAction.value = 'register';
+
+            // Show loading
+            const checkText = document.getElementById('domain-check-text');
+            const checkSpinner = document.getElementById('domain-check-spinner');
+            if (checkText) checkText.textContent = '{{ 'Checking...'|trans }}';
+            if (checkSpinner) checkSpinner.classList.remove('d-none');
+            domainCheckBtn.disabled = true;
+
+            const registerConfig = document.getElementById('domain-register-config');
+            const registerError = document.getElementById('domain-register-error');
+            if (registerConfig) registerConfig.style.display = 'none';
+            if (registerError) registerError.style.display = 'none';
+
+            FOSSBilling.api.guest.post('servicedomain/check', { sld: sld, tld: tld },
+                function (result) {
+                    if (checkText) checkText.textContent = '{{ 'Check Availability'|trans }}';
+                    if (checkSpinner) checkSpinner.classList.add('d-none');
+                    domainCheckBtn.disabled = false;
+
+                    setRegistrationPricing(tld);
+                    const domainNameEl = document.getElementById('domain-name');
+                    if (domainNameEl) domainNameEl.textContent = domain;
+                    if (registerConfig) {
+                        registerConfig.style.display = 'block';
+                    }
+                    if (configNext) {
+                        configNext.disabled = false;
+                    }
+                },
+                function (error) {
+                    if (checkText) checkText.textContent = '{{ 'Check Availability'|trans }}';
+                    if (checkSpinner) checkSpinner.classList.add('d-none');
+                    domainCheckBtn.disabled = false;
+
+                    if (registerError) {
+                        const errMsg = document.getElementById('domain-register-error-msg');
+                        if (errMsg && error && error.message) errMsg.textContent = error.message;
+                        registerError.style.display = 'block';
+                    }
+                    if (configNext) {
+                        configNext.disabled = true;
+                    }
+                }
+            );
+        });
+    }
+
+    // Check Transfer
+    const transferCheckBtn = document.getElementById('transfer-check');
+    if (transferCheckBtn) {
+        transferCheckBtn.addEventListener('click', function () {
+            const sldInput = document.querySelector('input[name="transfer_sld"]');
+            const tldSelect = document.querySelector('select[name="transfer_tld"]');
+            const sld = sldInput ? sldInput.value.trim().toLowerCase() : '';
+            const tld = tldSelect ? tldSelect.value.trim().toLowerCase() : '';
+
+            if (!sld) {
+                sldInput.focus();
+                return;
+            }
+
+            if (domainAction) domainAction.value = 'transfer';
+
+            // Show loading
+            const checkText = document.getElementById('transfer-check-text');
+            const checkSpinner = document.getElementById('transfer-check-spinner');
+            if (checkText) checkText.textContent = '{{ 'Checking...'|trans }}';
+            if (checkSpinner) checkSpinner.classList.remove('d-none');
+            transferCheckBtn.disabled = true;
+
+            const transferConfig = document.getElementById('domain-transfer-config');
+            const transferError = document.getElementById('domain-transfer-error');
+            if (transferConfig) transferConfig.style.display = 'none';
+            if (transferError) transferError.style.display = 'none';
+
+            FOSSBilling.api.guest.post('servicedomain/can_be_transferred', { sld: sld, tld: tld },
+                function (result) {
+                    if (checkText) checkText.textContent = '{{ 'Check Transfer'|trans }}';
+                    if (checkSpinner) checkSpinner.classList.add('d-none');
+                    transferCheckBtn.disabled = false;
+
+                    setTransferPricing(tld);
+                    if (transferConfig) transferConfig.style.display = 'block';
+                    updateTransferCodeRequirement();
+                    if (configNext) {
+                        configNext.disabled = false;
+                    }
+                },
+                function (error) {
+                    if (checkText) checkText.textContent = '{{ 'Check Transfer'|trans }}';
+                    if (checkSpinner) checkSpinner.classList.add('d-none');
+                    transferCheckBtn.disabled = false;
+
+                    if (transferError) {
+                        const errMsg = document.getElementById('domain-transfer-error-msg');
+                        if (errMsg && error && error.message) errMsg.textContent = error.message;
+                        transferError.style.display = 'block';
+                    }
+                    if (configNext) {
+                        configNext.disabled = true;
+                    }
+                }
+            );
+        });
+    }
+
+    function setRegistrationPricing(tld) {
+        FOSSBilling.api.guest.post('servicedomain/pricing', { tld: tld }, function (result) {
+            const yearsSelect = document.getElementById('registration-years');
+            if (!yearsSelect) return;
+            yearsSelect.innerHTML = '';
+
+            const regPrice = Number(result.price_registration);
+            let renewPrice = Number(result.price_renew);
+            if (result.price_renew === null || typeof result.price_renew === 'undefined' || isNaN(renewPrice)) {
+                renewPrice = regPrice;
+            }
+
+            const yearLabel = " {{ 'Year'|trans }} @ ";
+            const yearsLabel = " {{ 'Years'|trans }} @ ";
+
+            let allowedYears = Array.isArray(result.periods) && result.periods.length ? result.periods : null;
+            if (!allowedYears) {
+                const minYears = Number(result.min_years) > 0 ? Number(result.min_years) : 1;
+                allowedYears = [];
+                for (let i = minYears; i < minYears + 5; i++) {
+                    allowedYears.push(i);
+                }
+            }
+
+            allowedYears.forEach(function (i) {
+                const totalPrice = (i === 1) ? regPrice : regPrice + (i - 1) * renewPrice;
+                const priceFormatted = formatCurrency(totalPrice, {{ currency.conversion_rate }}, "{{ currency.code }}", 1);
+                yearsSelect.append(new Option(i + (i === 1 ? yearLabel : yearsLabel) + priceFormatted, i));
+            });
+        });
+    }
+
+    function setTransferPricing(tld) {
+        FOSSBilling.api.guest.post('servicedomain/pricing', { tld: tld }, function (result) {
+            const price = formatCurrency(result.price_transfer, {{ currency.conversion_rate }}, "{{ currency.code }}");
+            const transferPriceEl = document.getElementById('transfer-price');
+            if (transferPriceEl) transferPriceEl.textContent = price;
+        });
+    }
+
+    // Handle URL parameters for pre-filling domain form (e.g. from frontpage search)
+    const urlParams = new URLSearchParams(window.location.search);
+    const domainParam = urlParams.get('domain') || urlParams.get('name');
+    if (domainParam) {
+        let sldVal = domainParam;
+        let tldVal = '';
+        if (domainParam.includes('.')) {
+            const parts = domainParam.split('.');
+            sldVal = parts[0];
+            tldVal = '.' + parts.slice(1).join('.');
+        }
+
+        const registerSld = document.getElementById('domain-register-sld');
+        if (registerSld) registerSld.value = sldVal;
+
+        if (tldVal) {
+            const regTldSelect = document.getElementById('domain-register-tld');
+            if (regTldSelect) {
+                for (let i = 0; i < regTldSelect.options.length; i++) {
+                    if (regTldSelect.options[i].value === tldVal) {
+                        regTldSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Auto trigger availability check if sld is provided
+        if (domainCheckBtn && sldVal) {
+            domainCheckBtn.click();
+        }
+    }
+});
+</script>

@@ -1,0 +1,62 @@
+{# Modern Ordering Wizard Stepper #}
+<div class="theme-order-stepper mb-4">
+    <div class="stepper-track">
+        <a href="{{ 'order'|url }}" class="stepper-step {% if current_step == 1 %}active{% elseif current_step > 1 %}completed{% endif %} text-decoration-none">
+            <span class="stepper-bubble">
+                {% if current_step > 1 %}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                {% else %}
+                    1
+                {% endif %}
+            </span>
+            <div class="stepper-info">
+                <span class="stepper-title">{{ 'Select Plan'|trans }}</span>
+                <span class="stepper-sub d-none d-sm-inline">{{ 'Choose your service'|trans }}</span>
+            </div>
+        </a>
+
+        <div class="stepper-line {% if current_step > 1 %}filled{% endif %}"></div>
+
+        <div class="stepper-step {% if current_step == 2 %}active{% elseif current_step > 2 %}completed{% else %}disabled{% endif %}">
+            <span class="stepper-bubble">
+                {% if current_step > 2 %}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                {% else %}
+                    2
+                {% endif %}
+            </span>
+            <div class="stepper-info">
+                <span class="stepper-title">{{ 'Configure'|trans }}</span>
+                <span class="stepper-sub d-none d-sm-inline">{{ 'Billing & options'|trans }}</span>
+            </div>
+        </div>
+
+        <div class="stepper-line {% if current_step > 2 %}filled{% endif %}"></div>
+
+        {% if cart.items|length > 0 and current_step != 3 %}
+            <a href="{{ 'order'|url({ checkout: 1 }) }}" class="stepper-step text-decoration-none">
+                <span class="stepper-bubble">3</span>
+                <div class="stepper-info">
+                    <span class="stepper-title">{{ 'Review & Checkout'|trans }}</span>
+                    <span class="stepper-sub d-none d-sm-inline">{{ 'Instant activation'|trans }}</span>
+                </div>
+            </a>
+        {% elseif current_step == 3 %}
+            <div class="stepper-step active">
+                <span class="stepper-bubble">3</span>
+                <div class="stepper-info">
+                    <span class="stepper-title">{{ 'Review & Checkout'|trans }}</span>
+                    <span class="stepper-sub d-none d-sm-inline">{{ 'Instant activation'|trans }}</span>
+                </div>
+            </div>
+        {% else %}
+            <div class="stepper-step disabled">
+                <span class="stepper-bubble">3</span>
+                <div class="stepper-info">
+                    <span class="stepper-title">{{ 'Review & Checkout'|trans }}</span>
+                    <span class="stepper-sub d-none d-sm-inline">{{ 'Instant activation'|trans }}</span>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>

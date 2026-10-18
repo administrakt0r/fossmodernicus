@@ -1,0 +1,24 @@
+{% set logo_url = settings.custom_logo_url|default(company.logo_url|default(null)) %}
+{% set dark_logo_url = settings.custom_logo_dark_url|default(null) %}
+{% set link_url = link_url|default('/'|url) %}
+{% set link_class = link_class|default('d-inline-flex align-items-center text-decoration-none') %}
+{% set link_rel = link_rel|default(null) %}
+{% set image_class = image_class|default('theme-brand-logo') %}
+{% set image_height = image_height|default('40px') %}
+{% set show_mobile_name = show_mobile_name|default(false) %}
+
+<a{% if link_class %} class="{{ link_class }}"{% endif %} href="{{ link_url }}"{% if link_target is defined %} target="{{ link_target }}"{% endif %}{% if link_rel %} rel="{{ link_rel }}"{% endif %}>
+    {% if logo_url or dark_logo_url %}
+        {% if dark_logo_url %}
+            <img class="theme-logo-dark d-none" src="{{ dark_logo_url }}" alt="{{ company.name|default('Client Portal') }}" height="{{ image_height }}" style="height: {{ image_height }}; width: auto; max-width: 100%;">
+            <img class="theme-logo-light" src="{{ logo_url|default(dark_logo_url) }}" alt="{{ company.name|default('Client Portal') }}" height="{{ image_height }}" style="height: {{ image_height }}; width: auto; max-width: 100%;">
+        {% else %}
+            <img class="theme-brand-logo" src="{{ logo_url }}" alt="{{ company.name|default('Client Portal') }}" height="{{ image_height }}" style="height: {{ image_height }}; width: auto; max-width: 100%;">
+        {% endif %}
+        {% if show_mobile_name %}
+            <span class="d-sm-none ms-2 fw-bold text-main">{{ company.name|default('Client Portal') }}</span>
+        {% endif %}
+    {% else %}
+        <img class="theme-brand-logo" src="{{ 'img/logo.svg'|asset_url }}" alt="{{ company.name|default('Client Portal') }}" height="{{ image_height }}" style="height: {{ image_height }}; width: auto; max-width: 100%;">
+    {% endif %}
+</a>

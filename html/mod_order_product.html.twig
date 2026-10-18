@@ -1,0 +1,19 @@
+{% extends request.ajax ? "layout_blank.html.twig" : "layout_default.html.twig" %}
+{% set active_menu = 'order' %}
+{% set cart = guest.cart_get %}
+{% set current_step = 2 %}
+
+{% block meta_title %}{{ 'Configure'|trans }} {{ product.title }}{% endblock %}
+{% block meta_description %}{{ 'Configure your service options, billing cycle, and addons for instant provisioning.'|trans }}{% endblock %}
+
+{% block breadcrumb_item %}
+    <a href="{{ 'order'|url }}" class="text-reset text-decoration-none">{{ 'Order'|trans }}</a>
+    <span>/</span> <span>{{ product.title }}</span>
+{% endblock %}
+
+{% block content %}
+    <div class="theme-order-container">
+        {{ include('partials/order_stepper.html.twig', { current_step: current_step, cart: cart }) }}
+        {{ include('partials/order_configure.html.twig', { product: product, cart: cart }) }}
+    </div>
+{% endblock %}

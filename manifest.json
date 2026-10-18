@@ -1,0 +1,19 @@
+{
+  "name": "FossModernicus",
+  "version": "1.0.0",
+  "description": "A clean, modern, and professional client portal theme for FOSSBilling, inspired by WHMCS and enterprise billing systems.",
+  "icon": "screenshot.jpg",
+  "author": "WPinEU.com",
+  "author_url": "https://wpineu.com",
+  "markdown_attributes": {
+    "\\League\\CommonMark\\Extension\\Table\\Table": {
+      "class": "table table-hover align-middle mb-0"
+    },
+    "\\League\\CommonMark\\Extension\\CommonMark\\Node\\Inline\\Image": {
+      "class": "img-fluid rounded"
+    },
+    "\\League\\CommonMark\\Extension\\CommonMark\\Node\\Block\\BlockQuote": {
+      "class": "blockquote border-start border-4 border-primary ps-3 my-3"
+    }
+  }
+}

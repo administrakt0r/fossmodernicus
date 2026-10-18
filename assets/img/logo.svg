@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" width="200" height="48" fill="none">
+    <rect x="4" y="4" width="40" height="40" rx="8" fill="#0e5077" />
+    <path d="M24 13 L34 19 L34 31 L24 37 L14 31 L14 19 Z" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round" fill="none"/>
+    <path d="M24 13 L24 25 L34 31" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+    <path d="M24 25 L14 31" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+    <text x="54" y="25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="16" font-weight="800" fill="#0e5077" letter-spacing="-0.3">CLIENT</text>
+    <text x="114" y="25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="16" font-weight="500" fill="#475569" letter-spacing="-0.3">PORTAL</text>
+    <text x="54" y="37" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="8.5" font-weight="600" letter-spacing="1.2" fill="#64748b">BILLING &amp; SERVICES</text>
+</svg>

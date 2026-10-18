@@ -1,0 +1,260 @@
+{# Modern Product Configuration & Addons View #}
+{% set cart_currency = guest.cart_get_currency %}
+{% set periods = guest.system_periods %}
+
+<form method="post" action="{{ 'cart/add_item'|api_url(null, 'guest') }}" id="order-configure-form"
+      {{ fb_api_form({ message: 'Product Added to Shopping Cart'|trans, redirect: ('order'|url({ 'checkout': 1 })) }) }}>
+    <input type="hidden" name="id" value="{{ product.id }}" />
+    <input type="hidden" name="multiple" value="1" />
+
+    <div class="row g-4">
+        {# Left Column: Options, Billing Cycle, Domains, Addons #}
+        <div class="col-12 col-lg-8">
+            {# Product Summary Card #}
+            <div class="theme-card p-4 mb-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-3 border-bottom border-subtle">
+                    <div>
+                        <a href="{{ 'order'|url }}" class="text-muted small text-decoration-none d-inline-flex align-items-center mb-1">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                            {{ 'Back to All Plans'|trans }}
+                        </a>
+                        <h1 class="h3 fw-bold mb-0">{{ product.title }}</h1>
+                    </div>
+                    {% if product.stock_control %}
+                        <span class="badge {% if product.quantity_in_stock > 3 %}bg-success-lt{% else %}bg-warning-lt{% endif %}">
+                            {{ product.quantity_in_stock }} {{ 'In Stock'|trans }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                {% if product.description %}
+                    <div class="product-description small mb-0">
+                        {{ (product.description ?? '')|markdown_to_html }}
+                    </div>
+                {% endif %}
+            </div>
+
+            {# Billing Cycle Selection #}
+            {% if product.pricing.type == 'recurrent' %}
+                <div class="theme-card p-4 mb-4">
+                    <h2 class="h5 fw-bold mb-1">{{ 'Select Billing Cycle'|trans }}</h2>
+                    <p class="text-muted small mb-3">{{ 'Choose how frequently you would like to be billed for this service.'|trans }}</p>
+
+                    <div class="row g-3" id="billing-cycle-options">
+                        {% set first_checked = false %}
+                        {% for code, prices in product.pricing.recurrent %}
+                            {% if prices.enabled %}
+                                {% set is_selected = (request.period is defined and request.period == code) or (not first_checked and request.period is not defined) %}
+                                {% if is_selected %}{% set first_checked = true %}{% endif %}
+                                <div class="col-12 col-sm-6">
+                                    <label class="billing-cycle-card theme-card p-3 h-100 d-flex flex-column justify-content-between cursor-pointer {% if is_selected %}selected{% endif %}" for="period-{{ code }}">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <input type="radio" name="period" id="period-{{ code }}" value="{{ code }}" class="form-check-input me-2 period-radio"
+                                                       data-price="{{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}"
+                                                       data-title="{{ periods[code]|default(code) }}"
+                                                       {% if is_selected %}checked="checked"{% endif %}>
+                                                <strong class="text-main">{{ periods[code]|default(code) }}</strong>
+                                            </div>
+                                            {% if code == '1Y' or code == '2Y' or code == '3Y' %}
+                                                <span class="badge bg-success-lt">{{ 'Save'|trans }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="fs-4 fw-bold text-main">{{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                                            {% if prices.setup != '0.00' %}
+                                                <div class="text-muted small mt-1">+ {{ (prices.setup * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }} {{ 'Setup Fee'|trans }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </label>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% elseif product.pricing.type == 'once' %}
+                <div class="theme-card p-4 mb-4">
+                    <h2 class="h5 fw-bold mb-1">{{ 'Pricing'|trans }}</h2>
+                    <div class="d-flex align-items-baseline gap-2 mt-2">
+                        <span class="fs-3 fw-bold text-main">{{ (product.pricing.once.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                        <span class="badge bg-primary-lt">{{ 'One-time Payment'|trans }}</span>
+                    </div>
+                </div>
+            {% elseif product.pricing.type == 'free' %}
+                <div class="theme-card p-4 mb-4">
+                    <h2 class="h5 fw-bold mb-1">{{ 'Pricing'|trans }}</h2>
+                    <div class="d-flex align-items-baseline gap-2 mt-2">
+                        <span class="fs-3 fw-bold text-success">{{ 'Free of charge'|trans }}</span>
+                    </div>
+                </div>
+            {% endif %}
+
+            {# Quantity Selector #}
+            {% if product.allow_quantity_select %}
+                <div class="theme-card p-4 mb-4">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div>
+                            <h2 class="h5 fw-bold mb-1">{{ 'Quantity'|trans }}</h2>
+                            <p class="text-muted small mb-0">{{ 'How many instances of this plan would you like to order?'|trans }}</p>
+                        </div>
+                        <div style="width: 120px;">
+                            <input type="number" name="quantity" id="order-quantity" value="1" min="1" {% if product.stock_control %}max="{{ product.quantity_in_stock }}"{% endif %} class="form-control text-center">
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {# Service Specific Configuration (Hosting, Domain, or Formbuilder) #}
+            {% set tpl = "mod_service" ~ product.type ~ "_order_form.html.twig" %}
+            {% if guest.system_template_exists({"file": tpl}) %}
+                <div class="theme-card p-4 mb-4">
+                    <h2 class="h5 fw-bold mb-3">{{ 'Service Configuration'|trans }}</h2>
+                    {{ include(tpl, product) }}
+                </div>
+            {% elseif product.form_id and guest.extension_is_on({"mod": "formbuilder"}) %}
+                <div class="theme-card p-4 mb-4">
+                    <h2 class="h5 fw-bold mb-3">{{ 'Custom Options'|trans }}</h2>
+                    {% set form = guest.formbuilder_get({"id": product.form_id}) %}
+                    {{ include('mod_formbuilder_build.html.twig', product) }}
+                </div>
+            {% endif %}
+
+            {# Addons & Optional Extras #}
+            {% if product.addons is defined and product.addons|length > 0 %}
+                <div class="theme-card p-4 mb-4">
+                    <h2 class="h5 fw-bold mb-1">{{ 'Recommended Addons'|trans }}</h2>
+                    <p class="text-muted small mb-3">{{ 'Enhance your plan with these optional features and services.'|trans }}</p>
+
+                    <div class="row g-3">
+                        {% for addon in product.addons %}
+                            <div class="col-12">
+                                <div class="theme-card p-3 border-subtle d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                                    <div class="d-flex align-items-start gap-3">
+                                        {% if addon.icon_url %}
+                                            <img src="{{ addon.icon_url }}" alt="" width="36" height="36" class="rounded">
+                                        {% endif %}
+                                        <div>
+                                            <strong class="d-block text-main mb-1">{{ addon.title }}</strong>
+                                            {% if addon.description %}
+                                                <div class="text-muted small mb-0">{{ (addon.description ?? '')|markdown_to_html }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center gap-2 align-self-end align-self-sm-center">
+                                        {% if addon.pricing.type is same as('recurrent') %}
+                                            <select class="form-select form-select-sm" name="addons[{{ addon.id }}][period]" style="min-width: 140px;">
+                                                {% for code, prices in addon.pricing.recurrent %}
+                                                    {% if prices.enabled %}
+                                                        <option value="{{ code }}">
+                                                            {{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }} ({{ periods[code] }})
+                                                        </option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        {% elseif addon.pricing.type is same as('once') %}
+                                            <span class="badge bg-primary-lt">
+                                                {{ (addon.pricing.once.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                                            </span>
+                                        {% endif %}
+
+                                        <div class="btn-group" role="group" aria-label="{{ addon.title }}">
+                                            <input type="radio" class="btn-check" name="addons[{{ addon.id }}][selected]" id="addon-yes-{{ addon.id }}" value="1" autocomplete="off">
+                                            <label class="btn btn-outline-success btn-sm" for="addon-yes-{{ addon.id }}" title="{{ 'Add addon'|trans }}">{{ 'Add'|trans }}</label>
+
+                                            <input type="radio" class="btn-check" name="addons[{{ addon.id }}][selected]" id="addon-no-{{ addon.id }}" value="0" autocomplete="off" checked>
+                                            <label class="btn btn-outline-secondary btn-sm" for="addon-no-{{ addon.id }}" title="{{ 'Skip addon'|trans }}">{{ 'Skip'|trans }}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        {# Right Column: Sticky Order Summary #}
+        <div class="col-12 col-lg-4">
+            <div class="theme-card p-4 sticky-top" style="top: 80px; z-index: 10;">
+                <h2 class="h5 fw-bold mb-3 pb-2 border-bottom border-subtle">{{ 'Order Summary'|trans }}</h2>
+
+                <div class="mb-3">
+                    <div class="fw-bold text-main">{{ product.title }}</div>
+                    <div class="text-muted small" id="summary-period-label">
+                        {% if product.pricing.type == 'recurrent' %}
+                            {{ 'Recurring billing'|trans }}
+                        {% elseif product.pricing.type == 'once' %}
+                            {{ 'One-time fee'|trans }}
+                        {% else %}
+                            {{ 'Free service'|trans }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center py-2 border-top border-bottom border-subtle my-3">
+                    <span class="text-muted small">{{ 'Subtotal Due'|trans }}</span>
+                    <span class="fs-4 fw-bold text-main" id="summary-price-display">
+                        {% if product.pricing.type == 'recurrent' %}
+                            {% for code, prices in product.pricing.recurrent %}
+                                {% if loop.first %}
+                                    {{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                                {% endif %}
+                            {% endfor %}
+                        {% elseif product.pricing.type == 'once' %}
+                            {{ (product.pricing.once.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                        {% else %}
+                            {{ 0|format_currency(cart_currency.code ?? default_currency) }}
+                        {% endif %}
+                    </span>
+                </div>
+
+                <button type="submit" class="theme-btn theme-btn-primary w-100 justify-content-center py-2 mb-3" id="config-next">
+                    <span>{{ 'Continue to Checkout'|trans }}</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ms-1"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+
+                <div class="text-center">
+                    <a href="{{ 'order'|url }}" class="text-muted small text-decoration-none">
+                        {{ 'Choose a different plan'|trans }}
+                    </a>
+                </div>
+
+                <div class="mt-4 pt-3 border-top border-subtle text-muted small">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-success"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span>{{ '256-Bit SSL Encrypted Checkout'|trans }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-success"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                        <span>{{ 'Instant Service Provisioning'|trans }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const periodRadios = document.querySelectorAll('.period-radio');
+    const summaryPrice = document.getElementById('summary-price-display');
+    const summaryLabel = document.getElementById('summary-period-label');
+    const billingCards = document.querySelectorAll('.billing-cycle-card');
+
+    periodRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                if (summaryPrice && this.dataset.price) {
+                    summaryPrice.textContent = this.dataset.price;
+                }
+                if (summaryLabel && this.dataset.title) {
+                    summaryLabel.textContent = this.dataset.title;
+                }
+                billingCards.forEach(card => card.classList.remove('selected'));
+                this.closest('.billing-cycle-card')?.classList.add('selected');
+            }
+        });
+    });
+});
+</script>

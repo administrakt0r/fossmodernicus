@@ -1,0 +1,71 @@
+{% extends "layout_public.html.twig" %}
+
+{% block meta_title %}{{ 'Create Account'|trans }}{% endblock %}
+
+{% set r = guest.client_required %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <h1 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-main);">
+        {{ 'Create Your Account'|trans }}
+    </h1>
+    <p class="text-muted mb-0" style="font-size: 0.875rem;">
+        {{ 'Get started with your hosting and client portal services.'|trans }}
+    </p>
+</div>
+
+<form method="post" action="{{ 'client/create'|api_url(null, 'guest') }}" {{ fb_api_form({redirect: '/'|url}) }}>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <div class="theme-form-group">
+            <label class="theme-form-label" for="reg_first_name">{{ 'First Name'|trans }} *</label>
+            <input type="text" class="theme-input" id="reg_first_name" name="first_name" value="{{ request.first_name }}" required autofocus>
+        </div>
+        <div class="theme-form-group">
+            <label class="theme-form-label" for="reg_last_name">{{ 'Last Name'|trans }} {% if 'last_name' in r %}*{% endif %}</label>
+            <input type="text" class="theme-input" id="reg_last_name" name="last_name" value="{{ request.last_name }}" {% if 'last_name' in r %}required{% endif %}>
+        </div>
+    </div>
+
+    <div class="theme-form-group">
+        <label class="theme-form-label" for="reg_email">{{ 'Email Address'|trans }} *</label>
+        <input type="email" class="theme-input" id="reg_email" name="email" value="{{ request.email }}" placeholder="you@domain.com" required>
+    </div>
+
+    {% if 'company' in r %}
+        <div class="theme-form-group">
+            <label class="theme-form-label" for="reg_company">{{ 'Company Name'|trans }} *</label>
+            <input type="text" class="theme-input" id="reg_company" name="company" value="{{ request.company }}" required>
+        </div>
+    {% endif %}
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <div class="theme-form-group">
+            <label class="theme-form-label" for="reg_password">{{ 'Password'|trans }} *</label>
+            <input type="password" class="theme-input" id="reg_password" name="password" minlength="8" required>
+        </div>
+        <div class="theme-form-group">
+            <label class="theme-form-label" for="reg_password_confirm">{{ 'Confirm'|trans }} *</label>
+            <input type="password" class="theme-input" id="reg_password_confirm" name="password_confirm" minlength="8" required>
+        </div>
+    </div>
+
+    {% set honeypot = antispam_honeypot() %}
+    {% if honeypot.enabled %}
+        <div style="position: absolute; left: -9999px;" aria-hidden="true">
+            <label for="honeypot_{{ honeypot.field }}">{{ 'Do not fill this field'|trans }}</label>
+            <input type="text" id="honeypot_{{ honeypot.field }}" name="{{ honeypot.field }}" value="" tabindex="-1" autocomplete="off" aria-hidden="true"/>
+        </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <button type="submit" class="theme-btn theme-btn-primary w-100" style="padding: 0.65rem 1rem; font-size: 0.9375rem; width: 100%;">
+            {{ 'Create Account'|trans }}
+        </button>
+    </div>
+</form>
+
+<div class="text-center mt-4 pt-3 border-top border-subtle" style="font-size: 0.875rem;">
+    <span class="text-muted">{{ 'Already have an account?'|trans }}</span>
+    <a href="{{ 'login'|url }}" style="font-weight: 600; margin-left: 0.25rem;">{{ 'Sign In'|trans }}</a>
+</div>
+{% endblock %}

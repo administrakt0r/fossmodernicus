@@ -1,0 +1,258 @@
+{# Theme Customization Settings for FossModernicus #}
+
+<section class="mb-4">
+    <h4 class="card-title mb-3">{{ 'Branding & Color Scheme'|trans }}</h4>
+    <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <label for="color_scheme" class="form-label fw-bold">{{ 'Primary Color Palette'|trans }}</label>
+            <select name="color_scheme" id="color_scheme" class="form-select">
+                <option value="corporate" {% if settings.color_scheme == 'corporate' or not settings.color_scheme %}selected{% endif %}>{{ 'WHMCS Corporate Navy (Default)'|trans }}</option>
+                <option value="cobalt" {% if settings.color_scheme == 'cobalt' %}selected{% endif %}>{{ 'Modern Cobalt Blue'|trans }}</option>
+                <option value="slate" {% if settings.color_scheme == 'slate' %}selected{% endif %}>{{ 'Enterprise Slate'|trans }}</option>
+                <option value="teal" {% if settings.color_scheme == 'teal' %}selected{% endif %}>{{ 'Nordic Teal'|trans }}</option>
+                <option value="emerald" {% if settings.color_scheme == 'emerald' %}selected{% endif %}>{{ 'Billing Emerald'|trans }}</option>
+            </select>
+            <div class="form-text">{{ 'Choose the primary accent palette for buttons, active navigation, and highlighted elements.'|trans }}</div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label class="form-label fw-bold d-block">{{ 'Default Color Mode'|trans }}</label>
+            <div class="d-flex gap-3 mt-2">
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="default_theme_mode" value="light" id="theme_mode_light" {% if settings.default_theme_mode == 'light' or not settings.default_theme_mode %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'Light Mode'|trans }}</span>
+                </label>
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="default_theme_mode" value="dark" id="theme_mode_dark" {% if settings.default_theme_mode == 'dark' %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'Dark Mode'|trans }}</span>
+                </label>
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="default_theme_mode" value="auto" id="theme_mode_auto" {% if settings.default_theme_mode == 'auto' %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'System / Auto'|trans }}</span>
+                </label>
+            </div>
+            <div class="form-text">{{ 'Initial display mode for first-time visitors before client preference is stored.'|trans }}</div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label for="custom_logo_url" class="form-label fw-bold">{{ 'Custom Logo Image URL'|trans }}</label>
+            <input type="text" name="custom_logo_url" id="custom_logo_url" class="form-control" placeholder="https://example.com/logo.svg" value="{{ settings.custom_logo_url|default('') }}">
+            <div class="form-text">{{ 'Leave empty to use the system company logo from Settings > Company.'|trans }}</div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label for="custom_logo_dark_url" class="form-label fw-bold">{{ 'Custom Logo (Dark Mode) URL'|trans }}</label>
+            <input type="text" name="custom_logo_dark_url" id="custom_logo_dark_url" class="form-control" placeholder="https://example.com/logo-white.svg" value="{{ settings.custom_logo_dark_url|default('') }}">
+            <div class="form-text">{{ 'Optional contrasting logo shown when dark mode is enabled.'|trans }}</div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <h4 class="card-title mb-3">{{ 'Navigation & Header Options'|trans }}</h4>
+    <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <label class="form-label fw-bold d-block">{{ 'Show Client Account Balance'|trans }}</label>
+            <div class="d-flex gap-3">
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="show_client_balance" value="1" id="balance_yes" {% if settings.show_client_balance == '1' or settings.show_client_balance is not defined %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'Show in Topbar & Sidebar'|trans }}</span>
+                </label>
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="show_client_balance" value="0" id="balance_no" {% if settings.show_client_balance == '0' %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'Hide'|trans }}</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label class="form-label fw-bold d-block">{{ 'Show Breadcrumbs'|trans }}</label>
+            <div class="d-flex gap-3">
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="show_breadcrumbs" value="1" id="breadcrumbs_yes" {% if settings.show_breadcrumbs == '1' or settings.show_breadcrumbs is not defined %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'Enabled'|trans }}</span>
+                </label>
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="show_breadcrumbs" value="0" id="breadcrumbs_no" {% if settings.show_breadcrumbs == '0' %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'Disabled'|trans }}</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label class="form-label fw-bold d-block">{{ 'Theme Mode Switcher (Light / Dark)'|trans }}</label>
+            <div class="d-flex gap-3">
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="show_theme_toggle" value="1" id="toggle_yes" {% if settings.show_theme_toggle == '1' or settings.show_theme_toggle is not defined %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'Enabled for Clients'|trans }}</span>
+                </label>
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="show_theme_toggle" value="0" id="toggle_no" {% if settings.show_theme_toggle == '0' %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'Disabled'|trans }}</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label class="form-label fw-bold d-block">{{ 'Public Registration Link'|trans }}</label>
+            <div class="d-flex gap-3">
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="show_register_link" value="1" id="reg_yes" {% if settings.show_register_link == '1' or settings.show_register_link is not defined %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'Visible on Login & Topbar'|trans }}</span>
+                </label>
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="show_register_link" value="0" id="reg_no" {% if settings.show_register_link == '0' %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'Hidden'|trans }}</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <h4 class="card-title mb-3">{{ 'Guest Landing & Frontpage Settings'|trans }}</h4>
+    <div class="row g-3">
+        <div class="col-12">
+            <label for="front_hero_title" class="form-label fw-bold">{{ 'Frontpage Hero Headline'|trans }}</label>
+            <input type="text" name="front_hero_title" id="front_hero_title" class="form-control" value="{{ settings.front_hero_title|default('Welcome to our Client Portal'|trans) }}">
+            <div class="form-text">{{ 'Main title shown in the guest frontpage hero section.'|trans }}</div>
+        </div>
+
+        <div class="col-12">
+            <label for="front_hero_subtitle" class="form-label fw-bold">{{ 'Frontpage Hero Subheading'|trans }}</label>
+            <input type="text" name="front_hero_subtitle" id="front_hero_subtitle" class="form-control" value="{{ settings.front_hero_subtitle|default('Browse our services, manage existing subscriptions, pay invoices, and access customer support.'|trans) }}">
+            <div class="form-text">{{ 'Descriptive paragraph displayed under the hero headline.'|trans }}</div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label for="front_products_title" class="form-label fw-bold">{{ 'Featured Products Section Title'|trans }}</label>
+            <input type="text" name="front_products_title" id="front_products_title" class="form-control" value="{{ settings.front_products_title|default('Featured Products & Services'|trans) }}">
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label for="front_products_subtitle" class="form-label fw-bold">{{ 'Featured Products Subheading'|trans }}</label>
+            <input type="text" name="front_products_subtitle" id="front_products_subtitle" class="form-control" value="{{ settings.front_products_subtitle|default('Browse our available products and solutions.'|trans) }}">
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <h4 class="card-title mb-3">{{ 'Frontpage Feature Boxes (Optional)'|trans }}</h4>
+    <p class="text-secondary mb-3">{{ 'Optionally display up to 4 custom feature boxes or service guarantees on the guest frontpage. Disabled by default.'|trans }}</p>
+    <div class="row g-3">
+        <div class="col-12">
+            <label class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" name="show_front_features" value="1" {% if settings.show_front_features == '1' %}checked{% endif %}>
+                <span class="form-check-label fw-bold">{{ 'Enable Feature Boxes Section'|trans }}</span>
+            </label>
+            <div class="form-text">{{ 'When unchecked, no feature boxes are rendered on the frontpage.'|trans }}</div>
+        </div>
+
+        {% for i in 1..4 %}
+            <div class="col-12 col-md-6">
+                <div class="card p-3 bg-light border">
+                    <h5 class="fw-bold mb-2">{{ 'Feature Box'|trans }} #{{ i }}</h5>
+                    <div class="mb-2">
+                        <label class="form-label form-label-sm fw-medium">{{ 'Title'|trans }}</label>
+                        <input class="form-control form-control-sm" type="text" name="front_feature_{{ i }}_title" value="{{ attribute(settings, 'front_feature_' ~ i ~ '_title')|default('') }}" placeholder="{{ 'e.g. Reliable Infrastructure'|trans }}">
+                    </div>
+                    <div>
+                        <label class="form-label form-label-sm fw-medium">{{ 'Description'|trans }}</label>
+                        <textarea class="form-control form-control-sm" name="front_feature_{{ i }}_desc" rows="2" placeholder="{{ 'Brief description of this feature or guarantee...'|trans }}">{{ attribute(settings, 'front_feature_' ~ i ~ '_desc')|default('') }}</textarea>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mb-4">
+    <h4 class="card-title mb-3">{{ 'Client Dashboard Settings'|trans }}</h4>
+    <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <label for="welcome_title" class="form-label fw-bold">{{ 'Dashboard Welcome Title'|trans }}</label>
+            <input type="text" name="welcome_title" id="welcome_title" class="form-control" value="{{ settings.welcome_title|default('Welcome back') }}">
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label class="form-label fw-bold d-block">{{ 'Show Metric Summary Cards'|trans }}</label>
+            <div class="d-flex gap-3 mt-2">
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="show_metric_cards" value="1" id="metrics_yes" {% if settings.show_metric_cards == '1' or settings.show_metric_cards is not defined %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'Show (Services, Invoices, Tickets, Balance)'|trans }}</span>
+                </label>
+                <label class="form-check">
+                    <input class="form-check-input" type="radio" name="show_metric_cards" value="0" id="metrics_no" {% if settings.show_metric_cards == '0' %}checked{% endif %}>
+                    <span class="form-check-label">{{ 'Hide'|trans }}</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <label for="welcome_subtitle" class="form-label fw-bold">{{ 'Dashboard Welcome Subtitle'|trans }}</label>
+            <input type="text" name="welcome_subtitle" id="welcome_subtitle" class="form-control" value="{{ settings.welcome_subtitle|default('Manage your active services, billing, and support requests.') }}">
+        </div>
+
+        <div class="col-12">
+            <label for="announcement_text" class="form-label fw-bold">{{ 'Dashboard Announcement Banner (Markdown enabled)'|trans }}</label>
+            <textarea name="announcement_text" id="announcement_text" class="form-control" rows="3" placeholder="{{ 'Leave empty to hide announcement banner...'|trans }}">{{ settings.announcement_text|default('') }}</textarea>
+            <div class="form-text">{{ 'Broadcasts a persistent notification banner at the top of the client dashboard.'|trans }}</div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <h4 class="card-title mb-3">{{ 'Footer & Navigation Links'|trans }}</h4>
+    <div class="row g-3">
+        <div class="col-12">
+            <label for="footer_copyright" class="form-label fw-bold">{{ 'Footer Copyright Override'|trans }}</label>
+            <input type="text" name="footer_copyright" id="footer_copyright" class="form-control" placeholder="{{ 'Leave blank to use company signature'|trans }}" value="{{ settings.footer_copyright|default('') }}">
+            <div class="form-text">{{ 'Custom copyright text shown at the bottom of every page.'|trans }}</div>
+        </div>
+
+        <div class="col-12">
+            <h5 class="fw-bold mt-2 mb-3">{{ 'Custom Footer Navigation Links'|trans }}</h5>
+            <div class="d-flex flex-column gap-3">
+                {% for i in 1..5 %}
+                    {% set enabled_key = 'footer_link_' ~ i ~ '_enabled' %}
+                    {% set title_key = 'footer_link_' ~ i ~ '_title' %}
+                    {% set page_key = 'footer_link_' ~ i ~ '_page' %}
+                    <div class="row g-2 align-items-center">
+                        <div class="col-12 col-md-2">
+                            <span class="fw-medium">{{ 'Link'|trans }} #{{ i }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-check mb-0">
+                                <input class="form-check-input" type="checkbox" name="{{ enabled_key }}" value="1" {% if attribute(settings, enabled_key)|default('0') in ['1', 1, true, 'true', 'on'] %}checked{% endif %}>
+                                <span class="form-check-label">{{ 'Enabled'|trans }}</span>
+                            </label>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <input class="form-control form-control-sm" type="text" name="{{ title_key }}" value="{{ attribute(settings, title_key)|default('') }}" placeholder="{{ 'Link Title'|trans }}">
+                        </div>
+                        <div class="col-12 col-md-5">
+                            <input class="form-control form-control-sm" type="text" name="{{ page_key }}" value="{{ attribute(settings, page_key)|default('') }}" placeholder="{{ 'URL or route (e.g. support or https://...)'|trans }}">
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <h4 class="card-title mb-3">{{ 'Custom Code (CSS & JavaScript)'|trans }}</h4>
+    <div class="row g-3">
+        <div class="col-12">
+            <label for="custom_css" class="form-label fw-bold">{{ 'Custom CSS Styles'|trans }}</label>
+            <textarea name="custom_css" id="custom_css" class="form-control font-monospace" rows="4" placeholder=":root { --primary: #0e5077; }">{{ settings.custom_css|default('') }}</textarea>
+            <div class="form-text">{{ 'Injected into the <head> of every client portal page for quick design modifications.'|trans }}</div>
+        </div>
+
+        <div class="col-12">
+            <label for="custom_js" class="form-label fw-bold">{{ 'Custom JavaScript Code'|trans }}</label>
+            <textarea name="custom_js" id="custom_js" class="form-control font-monospace" rows="4" placeholder="console.log('Client portal loaded');">{{ settings.custom_js|default('') }}</textarea>
+            <div class="form-text">{{ 'Executed at the end of every client portal page (without <script> tags).'|trans }}</div>
+        </div>
+    </div>
+</section>

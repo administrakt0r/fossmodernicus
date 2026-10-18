@@ -1,0 +1,44 @@
+{% if list.pages > 1 %}
+    {% set url = url|default(guest.system_current_url|split('?')|first) %}
+    {% set pageParam = page_param|default('page') %}
+    {% set hash = hash|default('') %}
+    {% set currentPageRaw = request.(pageParam)|default(1) %}
+    {% if currentPageRaw matches '/^\\d+$/' %}
+        {% set currentPage = currentPageRaw %}
+    {% else %}
+        {% set currentPage = 1 %}
+    {% endif %}
+
+    {% set safeRequest = request|merge({ (pageParam): null }) %}
+    {% set filteredRequest = safeRequest|filter(v => v is not null) %}
+    <nav aria-label="{{ 'Pagination'|trans }}" class="my-3">
+        <ul class="pagination justify-content-center mb-0 gap-1" style="list-style: none; display: flex; padding: 0;">
+            <li class="page-item{% if currentPage <= 1 %} disabled opacity-50{% endif %}">
+                <a class="theme-btn theme-btn-secondary theme-btn-sm"
+                   href="{{ url|url(query: filteredRequest|merge({ (pageParam): currentPage - 1 })) ~ hash }}"
+                   aria-label="{{ 'Previous'|trans }}">
+                    &laquo; {{ 'Prev'|trans }}
+                </a>
+            </li>
+
+            {% for i in 1..list.pages %}
+                <li class="page-item">
+                    {% if i == currentPage %}
+                        <span class="theme-btn theme-btn-primary theme-btn-sm">{{ i }}</span>
+                    {% else %}
+                        <a class="theme-btn theme-btn-secondary theme-btn-sm"
+                           href="{{ url|url(query: filteredRequest|merge({ (pageParam): i })) ~ hash }}">{{ i }}</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+
+            <li class="page-item{% if currentPage >= list.pages %} disabled opacity-50{% endif %}">
+                <a class="theme-btn theme-btn-secondary theme-btn-sm"
+                   href="{{ url|url(query: filteredRequest|merge({ (pageParam): currentPage + 1 })) ~ hash }}"
+                   aria-label="{{ 'Next'|trans }}">
+                    {{ 'Next'|trans }} &raquo;
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endif %}
