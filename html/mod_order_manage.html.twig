@@ -183,6 +183,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
                 </div>
                 <form id="cancel-request-form">
+                    <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                     <input type="hidden" name="rel_type" value="order">
                     <input type="hidden" name="rel_id" value="{{ order.id }}">
                     <input type="hidden" name="rel_task" value="cancel">
@@ -222,6 +223,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
                 </div>
                 <form id="upgrade-request-form">
+                    <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                     <input type="hidden" name="rel_type" value="order">
                     <input type="hidden" name="rel_id" value="{{ order.id }}">
                     <input type="hidden" name="rel_task" value="upgrade">
@@ -258,6 +260,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
                 </div>
                 <form id="open-ticket-form">
+                    <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                     <input type="hidden" name="rel_type" value="order">
                     <input type="hidden" name="rel_id" value="{{ order.id }}">
                     <div class="modal-body p-4">
@@ -273,6 +276,7 @@
                             <label class="form-label fw-semibold">{{ 'Message'|trans }}</label>
                             <textarea class="editor-textarea form-control" name="content" rows="5" required placeholder="{{ 'Describe your request or issue...'|trans }}"></textarea>
                         </div>
+                        {{ mf.recaptcha }}
                     </div>
                     <div class="modal-footer bg-surface">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>

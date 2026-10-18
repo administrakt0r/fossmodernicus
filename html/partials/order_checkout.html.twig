@@ -1,4 +1,5 @@
 {# Modern Review & Checkout View #}
+{% import "macro_functions.html.twig" as mf %}
 {% set cart_currency = guest.cart_get_currency %}
 {% set periods = guest.system_periods %}
 
@@ -86,6 +87,7 @@
                     </div>
                 {% else %}
                     <form method="post" action="{{ 'cart/apply_promo'|api_url(null, 'guest') }}" {{ fb_api_form({ reload: true }) }}>
+                        <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                         <div class="input-group" style="max-width: 420px;">
                             <input type="text" name="promocode" class="form-control" placeholder="{{ 'Enter discount or promo code'|trans }}" aria-label="{{ 'Promotional code'|trans }}" required>
                             <button type="submit" class="theme-btn theme-btn-primary">{{ 'Apply Code'|trans }}</button>
@@ -133,6 +135,7 @@
                         {# Sign In Tab #}
                         <div class="tab-pane fade show active" id="auth-login" role="tabpanel" aria-labelledby="auth-login-tab">
                             <form method="post" action="{{ 'client/login'|api_url(null, 'guest') }}" {{ fb_api_form({ reload: true, message: 'Logged in successfully'|trans }) }}>
+                                <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                                 <div class="row g-3">
                                     <div class="col-12 col-sm-6">
                                         <label for="order-login-email" class="form-label small fw-medium">{{ 'Email Address'|trans }}</label>
@@ -153,6 +156,7 @@
                         {# Register Tab #}
                         <div class="tab-pane fade" id="auth-register" role="tabpanel" aria-labelledby="auth-register-tab">
                             <form method="post" action="{{ 'client/create'|api_url(null, 'guest') }}" {{ fb_api_form({ reload: true, message: 'Account created successfully'|trans }) }}>
+                                <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                                 <div class="row g-3">
                                     <div class="col-12 col-sm-6">
                                         <label for="order-reg-first" class="form-label small fw-medium">{{ 'First Name'|trans }}</label>
@@ -174,6 +178,19 @@
                                         <label for="order-reg-confirm" class="form-label small fw-medium">{{ 'Confirm Password'|trans }}</label>
                                         <input type="password" name="password_confirm" id="order-reg-confirm" class="form-control" required autocomplete="new-password">
                                     </div>
+
+                                    {% set honeypot = antispam_honeypot() %}
+                                    {% if honeypot.enabled %}
+                                        <div style="position: absolute; left: -9999px;" aria-hidden="true">
+                                            <label for="order_reg_honeypot_{{ honeypot.field }}">{{ 'Do not fill this field'|trans }}</label>
+                                            <input type="text" id="order_reg_honeypot_{{ honeypot.field }}" name="{{ honeypot.field }}" value="" tabindex="-1" autocomplete="off" aria-hidden="true"/>
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="col-12">
+                                        {{ mf.recaptcha }}
+                                    </div>
+
                                     <div class="col-12 text-end">
                                         <button type="submit" class="theme-btn theme-btn-primary">{{ 'Create Account & Continue'|trans }}</button>
                                     </div>
@@ -186,6 +203,7 @@
 
             {# Main Checkout Form #}
             <form method="post" action="{{ 'cart/checkout'|api_url }}" id="order-checkout-form" {{ fb_api_form({ callback: 'onOrderCheckout' }) }}>
+                <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                 {# Payment Method Selection #}
                 {% set enough_in_balance = client ? client.client_balance_get_total >= cart.total : false %}
                 {% if cart.total > 0 and not enough_in_balance %}

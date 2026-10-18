@@ -113,6 +113,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
                 </div>
                 <form id="ticket-submit" method="post">
+                    <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                     <div class="modal-body p-4">
                         <div class="mb-3">
                             <label class="form-label fw-semibold" for="support-helpdesk-id">{{ 'Department'|trans }}</label>
@@ -129,6 +130,7 @@
                             <label class="form-label fw-semibold" for="message">{{ 'Description / Message'|trans }}</label>
                             <textarea name="content" class="editor-textarea form-control" id="message" rows="6" required placeholder="{{ 'Provide as much detail as possible to help us resolve your issue quickly...'|trans }}">{{ request.content|e }}</textarea>
                         </div>
+                        {{ mf.recaptcha }}
                     </div>
                     <div class="modal-footer bg-surface">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ 'Cancel'|trans }}</button>

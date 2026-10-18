@@ -31,12 +31,13 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     // 2. Initialize FOSSBilling API Form and Link Listeners
-    if (typeof API !== 'undefined') {
-      if (typeof API._apiForm === 'function') {
-        API._apiForm();
+    const api = typeof API !== 'undefined' ? API : (window.FOSSBilling ? window.FOSSBilling.api : null);
+    if (api) {
+      if (typeof api._apiForm === 'function') {
+        api._apiForm();
       }
-      if (typeof API._apiLink === 'function') {
-        API._apiLink();
+      if (typeof api._apiLink === 'function') {
+        api._apiLink();
       }
     }
 

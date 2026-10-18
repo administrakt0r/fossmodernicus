@@ -47,7 +47,8 @@
 
     <!-- Personal Details Tab -->
     <div id="tab-details" class="theme-card-body profile-tab-pane">
-        <form method="post" action="client/profile/update" id="profile-update" {{ fb_api_form({message: 'Profile Updated'|trans}) }}>
+        <form method="post" action="{{ 'client/profile/update'|api_url }}" id="profile-update" {{ fb_api_form({message: 'Profile Updated'|trans}) }}>
+            <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
             <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded" style="background: var(--bg-subtle);">
                 <div class="theme-avatar" style="width: 54px; height: 54px; font-size: 1.25rem;">
                     {{ profile.first_name|first|upper }}{{ profile.last_name|first|upper }}
@@ -115,7 +116,8 @@
         <h3 class="theme-card-title mb-2">{{ 'Change Password'|trans }}</h3>
         <p class="text-muted mb-4">{{ 'Ensure your account stays secure by using a strong password.'|trans }}</p>
 
-        <form method="post" action="client/profile/change_password" {{ fb_api_form({message: 'Password Updated Successfully'|trans}) }} style="max-width: 480px;">
+        <form method="post" action="{{ 'client/profile/change_password'|api_url }}" {{ fb_api_form({message: 'Password Updated Successfully'|trans}) }} style="max-width: 480px;">
+            <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
             <div class="theme-form-group">
                 <label class="theme-form-label" for="current_password">{{ 'Current Password'|trans }}</label>
                 <input type="password" class="theme-input" name="current_password" id="current_password" required>
@@ -143,7 +145,8 @@
         <h3 class="theme-card-title mb-2">{{ 'Billing Currency'|trans }}</h3>
         <p class="text-muted mb-4">{{ 'Choose your preferred currency for invoices and orders.'|trans }}</p>
 
-        <form method="post" action="client/profile/currency_update" {{ fb_api_form({message: 'Currency Updated'|trans, reload: true}) }} style="max-width: 480px;">
+        <form method="post" action="{{ 'client/profile/currency_update'|api_url }}" {{ fb_api_form({message: 'Currency Updated'|trans, reload: true}) }} style="max-width: 480px;">
+            <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
             <div class="theme-form-group">
                 <label class="theme-form-label" for="currency">{{ 'Selected Currency'|trans }}</label>
                 <select name="currency" id="currency" class="theme-select">

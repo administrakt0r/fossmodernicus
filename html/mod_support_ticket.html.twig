@@ -132,6 +132,7 @@
                 </div>
                 <div class="card-body p-4">
                     <form id="ticket-reply-form">
+                        <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                         {% if is_guest_ticket %}
                             <input type="hidden" name="hash" value="{{ ticket.hash }}">
                         {% else %}
@@ -141,6 +142,8 @@
                         <div class="mb-3">
                             <textarea name="content" rows="6" class="editor-textarea form-control" required id="ticket-reply-text" placeholder="{{ 'Write your response here...'|trans }}"></textarea>
                         </div>
+
+                        {{ mf.recaptcha }}
 
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary d-flex align-items-center gap-2" id="post-reply-btn">

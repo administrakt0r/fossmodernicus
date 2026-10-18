@@ -4,6 +4,7 @@
 
 <form method="post" action="{{ 'cart/add_item'|api_url(null, 'guest') }}" id="order-configure-form"
       {{ fb_api_form({ message: 'Product Added to Shopping Cart'|trans, redirect: ('order'|url({ 'checkout': 1 })) }) }}>
+    <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
     <input type="hidden" name="id" value="{{ product.id }}" />
     <input type="hidden" name="multiple" value="1" />
 
