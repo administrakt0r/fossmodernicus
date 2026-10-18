@@ -1,7 +1,9 @@
 # FossModernicus Client Portal Theme for FOSSBilling
 
 <p align="center">
-  <img src="screenshot.png" alt="FossModernicus Theme Preview Banner" width="100%" />
+  <img src="assets/img/logo.svg" width="72" height="72" alt="FossModernicus Emblem" /><br>
+  <strong><span style="font-size: 2.2em;">FossModernicus</span></strong><br>
+  <em>Enterprise-Grade, Brand-Agnostic Client Portal Theme for FOSSBilling</em>
 </p>
 
 <p align="center">
@@ -14,29 +16,61 @@
 </p>
 
 <p align="center">
-  <strong>An enterprise-grade, brand-agnostic client portal theme for FOSSBilling.</strong><br>
-  Engineered for high performance, strict WCAG AAA dark mode contrast, zero vendor lock-in, and modern hosting workflows.
+  <strong>Modern WHMCS-grade aesthetic &bull; 100% Brand-Agnostic &bull; Strict WCAG AAA Dark Mode &bull; 100% Lighthouse Accessibility</strong><br>
+  Engineered for web hosts, domain registrars, and cloud service providers requiring professional polish without vendor lock-in.
 </p>
 
 <p align="center">
-  <a href="#visual-tour--interactive-demo"><strong>Watch Demo Tour</strong></a> &bull;
-  <a href="#screenshot-gallery"><strong>Browse Screenshots</strong></a> &bull;
+  <a href="#visual-showcase--looping-preview"><strong>Live Showcase</strong></a> &bull;
+  <a href="#video-tours--live-walkthroughs"><strong>Video Tours</strong></a> &bull;
+  <a href="#screenshot-gallery"><strong>Screenshots</strong></a> &bull;
   <a href="#production-installation"><strong>Quick Install</strong></a> &bull;
-  <a href="#key-features"><strong>Feature List</strong></a> &bull;
+  <a href="#key-features"><strong>Features</strong></a> &bull;
   <a href="#configuration--customization"><strong>Admin Settings</strong></a>
+</p>
+
+<!-- Hero Looping Animation -->
+<div id="visual-showcase--looping-preview" align="center">
+  <a href="demo/hero_showcase.mp4" title="Click to view full MP4 showcase video">
+    <img src="demo/hero_showcase.gif" alt="FossModernicus Live Looping Showcase: Desktop Light, Desktop Dark, Mobile Light, Mobile Dark" width="820" />
+  </a>
+  <p><em>Seamless looping showcase: Desktop Daylight Mode &rarr; High-Contrast Dark Mode &rarr; Mobile Daylight Mode &rarr; Mobile Dark Mode. (Click image to play MP4)</em></p>
+</div>
+
+<!-- Compact Static Preview -->
+<p align="center">
+  <img src="screenshot.png" alt="FossModernicus Dashboard Overview" width="460" /><br>
+  <small>Default Dashboard Overview (Corporate Navy Palette &bull; Light Mode)</small>
+</p>
+
+---
+
+## Video Tours & Live Walkthroughs
+
+Watch full live interactions demonstrating instant mode switching, responsive off-canvas drawer navigation, and billing management:
+
+| Desktop Live Walkthrough (1440x900) | Mobile Responsive Walkthrough (390x844) |
+|:---:|:---:|
+| <a href="demo/desktop_theme_tour.mp4"><img src="demo/desktop_theme_tour.gif" width="460" alt="Desktop Theme Tour Video Preview" /></a><br><strong><a href="demo/desktop_theme_tour.mp4">&#9654; Play Desktop Tour Video (MP4)</a></strong><br><em>Daylight to dark mode switch, services ledger, invoices overview</em> | <a href="demo/mobile_theme_tour.mp4"><img src="demo/mobile_theme_tour.gif" width="220" alt="Mobile Theme Tour Video Preview" /></a><br><strong><a href="demo/mobile_theme_tour.mp4">&#9654; Play Mobile Tour Video (MP4)</a></strong><br><em>Touch drawer menu, mobile cards, dark mode transitions</em> |
+
+<p align="center">
+  <a href="demo/desktop_theme_tour.mp4"><strong>Download Desktop Video (MP4, 1440x900)</strong></a> &bull; 
+  <a href="demo/mobile_theme_tour.mp4"><strong>Download Mobile Video (MP4, 390x844)</strong></a> &bull; 
+  <a href="demo/hero_showcase.mp4"><strong>Download Showcase Video (MP4, 1000x626)</strong></a>
 </p>
 
 ---
 
 ## Table of Contents
 
-- [1. Visual Tour & Interactive Demo](#visual-tour--interactive-demo)
-  - [Desktop Experience Tour](#desktop-experience-tour)
-  - [Mobile Responsive Tour](#mobile-responsive-tour)
-- [2. Screenshot Gallery](#screenshot-gallery)
+- [1. Visual Showcase & Looping Preview](#visual-showcase--looping-preview)
+- [2. Video Tours & Live Walkthroughs](#video-tours--live-walkthroughs)
+  - [Desktop Live Walkthrough](#desktop-live-walkthrough-1440x900)
+  - [Mobile Responsive Walkthrough](#mobile-responsive-walkthrough-390x844)
+- [3. Screenshot Gallery](#screenshot-gallery)
   - [Desktop Views (Light vs High-Contrast Dark Mode)](#desktop-views-light-vs-high-contrast-dark-mode)
   - [Mobile Responsive Views](#mobile-responsive-views)
-- [3. Key Features](#key-features)
+- [4. Key Features](#key-features)
   - [Brand-Agnostic Design](#brand-agnostic-design)
   - [Enterprise Color Palettes](#enterprise-color-palettes)
   - [Multi-Step Order Wizard](#multi-step-order-wizard)
@@ -47,39 +81,15 @@
   - [Self-Service Subscription Management](#self-service-subscription-management)
   - [Client Profile & Security](#client-profile--security)
   - [Admin Panel Integration](#admin-panel-integration)
-- [4. Contrast & Accessibility Architecture](#contrast--accessibility-architecture)
-- [5. Lighthouse Performance Audit](#lighthouse-performance-audit)
-- [6. Production Installation](#production-installation)
+- [5. Contrast & Accessibility Architecture](#contrast--accessibility-architecture)
+- [6. Lighthouse Performance Audit](#lighthouse-performance-audit)
+- [7. Production Installation](#production-installation)
   - [Method 1: Release Archive (.zip)](#method-1-release-archive-zip)
   - [Method 2: Git Clone](#method-2-git-clone)
-- [7. Configuration & Customization](#configuration--customization)
-- [8. Directory Structure](#directory-structure)
-- [9. Contributing & Bug Reports](#contributing--bug-reports)
-- [10. License & Credits](#license--credits)
-
----
-
-## Visual Tour & Interactive Demo
-
-FossModernicus features a fully responsive, hardware-accelerated user experience with instantaneous mode switching, smooth off-canvas navigation drawers, and accessible focus states.
-
-### Desktop Experience Tour
-
-Below is an interactive visual walkthrough showing default light mode, instant night mode toggle, and smooth navigation through the **Services** and **Invoices** portal views:
-
-![Desktop Tour Demo](demo/desktop_theme_tour.gif)
-
-*Desktop tour recorded at 1440x900 resolution. Highlighting real-time theme toggling, high-contrast tables, status pills, and client account navigation.*
-
-### Mobile Responsive Tour
-
-Below is the mobile tour showcasing off-canvas drawer navigation, responsive typography, and mobile-optimized tables:
-
-<p align="center">
-  <img src="demo/mobile_theme_tour.gif" alt="Mobile Tour Demo" width="390" />
-</p>
-
-*Mobile tour recorded at 390x844 (standard smartphone viewport). Showcasing touch navigation drawer, collapsible menu items, and responsive card views.*
+- [8. Configuration & Customization](#configuration--customization)
+- [9. Directory Structure](#directory-structure)
+- [10. Contributing & Bug Reports](#contributing--bug-reports)
+- [11. License & Credits](#license--credits)
 
 ---
 
