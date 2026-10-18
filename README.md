@@ -21,7 +21,7 @@ Maintained with credits to [WPinEU.com](https://wpineu.com) in the portal footer
   - **Slate** (`#2c3e50`) - Neutral modern charcoal
   - **Teal** (`#0e7490`) - Deep ocean teal
   - **Emerald** (`#057a55`) - Financial accounting green
-- **Default Light Interface with Dark Mode**: Crisp `#f4f6f9` billing background with high-contrast surfaces (`#ffffff`), dark slate typography, and subtle `#e2e8f0` borders. Client-side dark mode toggle with persistent state in `localStorage`.
+- **Default Light Interface with High-Contrast Dark Mode**: Crisp `#f4f6f9` billing background with high-contrast surfaces (`#ffffff`), dark slate typography, and subtle `#e2e8f0` borders. Client-side dark mode toggle with persistent state in `localStorage`. Fully WCAG AAA contrast-compliant (>8:1 contrast on all primary accents, >9:1 on muted text, and >11:1 on elevated secondary buttons).
 - **Refactored Multi-Step Order Flow (`mod_order_index`)**:
   - Step 1: Category and product selection with pricing grids.
   - Step 2: Domain configuration (Register new domain, transfer existing domain, or use own domain) with real-time TLD pricing tags.
@@ -55,6 +55,41 @@ Maintained with credits to [WPinEU.com](https://wpineu.com) in the portal footer
   - Configurable palette selector, custom logos (light and dark modes), Markdown announcement banners, custom footer navigation links, and custom CSS/JS injection.
 - **Extension & Widget Compatibility**:
   - All core FOSSBilling widget hooks (`render_widgets`) are preserved to ensure third-party modules and extensions work without modification.
+
+---
+
+## Visual Tour & Interactive Demo
+
+Experience the theme in action with full responsiveness and instant light/dark mode transitions:
+
+### Desktop Experience
+![FossModernicus Desktop Tour](demo/desktop_theme_tour.gif)
+
+### Mobile Responsive Experience
+![FossModernicus Mobile Tour](demo/mobile_theme_tour.gif)
+
+---
+
+## Screenshot Gallery (Light & Dark Modes)
+
+| View | Light Mode | High-Contrast Dark Mode |
+|---|---|---|
+| **Client Dashboard** | ![Dashboard Light](screenshots/desktop_01_dashboard_light.png) | ![Dashboard Dark](screenshots/desktop_02_dashboard_dark.png) |
+| **Active Services** | ![Services Light](screenshots/desktop_03_services_light.png) | ![Services Dark](screenshots/desktop_03_services_dark.png) |
+| **Service Management** | ![Service Manage Light](screenshots/desktop_04_service_manage_light.png) | ![Service Manage Dark](screenshots/desktop_04_service_manage_dark.png) |
+| **Invoices List** | ![Invoices Light](screenshots/desktop_05_invoices_light.png) | ![Invoices Dark](screenshots/desktop_05_invoices_dark.png) |
+| **Invoice Detail** | ![Invoice View Light](screenshots/desktop_06_invoice_view_light.png) | ![Invoice View Dark](screenshots/desktop_06_invoice_view_dark.png) |
+| **Support Tickets** | ![Support Light](screenshots/desktop_07_support_tickets_light.png) | ![Support Dark](screenshots/desktop_07_support_tickets_dark.png) |
+| **Ticket Thread** | ![Ticket View Light](screenshots/desktop_08_support_ticket_view_light.png) | ![Ticket View Dark](screenshots/desktop_08_support_ticket_view_dark.png) |
+| **Order Catalog** | ![Order Catalog Light](screenshots/desktop_09_order_catalog_light.png) | ![Order Catalog Dark](screenshots/desktop_09_order_catalog_dark.png) |
+| **Client Profile** | ![Client Profile Light](screenshots/desktop_10_client_profile_light.png) | ![Client Profile Dark](screenshots/desktop_10_client_profile_dark.png) |
+| **Authentication** | ![Login Light](screenshots/desktop_11_login_light.png) | ![Login Dark](screenshots/desktop_12_login_dark.png) |
+
+### Mobile Views
+
+| Mobile Dashboard | Mobile Navigation Drawer | Mobile Order Catalog |
+|---|---|---|
+| ![Mobile Dashboard](screenshots/mobile_01_dashboard_light.png) | ![Mobile Drawer](screenshots/mobile_03_drawer_menu.png) | ![Mobile Catalog](screenshots/mobile_06_order_catalog_light.png) |
 
 ---
 
