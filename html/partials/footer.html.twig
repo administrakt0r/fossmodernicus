@@ -2,7 +2,7 @@
     <div class="container-fluid">
         {{ render_widgets('client.theme.footer.start') }}
 
-        {% if company.bank_info_pagebottom == 1 %}
+        {% if company.bank_info_pagebottom|default(false) == 1 %}
             <div class="p-2 mb-3 rounded bg-surface border small text-muted text-center">
                 <strong>{{ 'Payment Information'|trans }}</strong> &mdash; 
                 {{ 'Bank'|trans }}: {{ company.bank_name|default('') }} | 

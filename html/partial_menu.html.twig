@@ -3,7 +3,7 @@
 
 <div class="theme-card p-2">
     <nav class="nav flex-column">
-        <a class="theme-nav-link {% if current_active_menu == 'dashboard' or (current_active_menu == '' and (current_page_name == 'index' or current_page_name == '')) %}active{% endif %}" href="{{ '/'|url }}">
+        <a class="theme-nav-link {% if current_active_menu == 'dashboard' or (current_active_menu == '' and current_page_name == 'index') %}active{% endif %}" href="{{ '/'|url }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             <span>{{ 'Dashboard'|trans }}</span>
         </a>

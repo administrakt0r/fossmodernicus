@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://fossbilling.org"><img src="https://img.shields.io/badge/FOSSBilling-v0.8.x%20%7C%20v0.9.x-0e5077.svg" alt="FOSSBilling Compatibility" /></a>
-  <a href="https://github.com/administrakt0r/fossmodernicus/releases/latest"><img src="https://img.shields.io/badge/Release-v1.0.1-0284c7.svg" alt="Latest Version" /></a>
+  <a href="https://github.com/administrakt0r/fossmodernicus/releases/latest"><img src="https://img.shields.io/badge/Release-v1.0.2-0284c7.svg" alt="Latest Version" /></a>
   <a href="#contrast--accessibility-architecture"><img src="https://img.shields.io/badge/Accessibility-WCAG%20AAA%20Compliant-15803d.svg" alt="WCAG AAA Contrast" /></a>
   <a href="#lighthouse-performance-audit"><img src="https://img.shields.io/badge/Lighthouse-100%20Accessibility%20%7C%2098%20Perf-brightgreen.svg" alt="Lighthouse Audited" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License" /></a>
@@ -230,10 +230,10 @@ FossModernicus is compatible with standard FOSSBilling instances (versions 0.8.x
 
 ### Method 1: Release Archive (.zip)
 
-1. Download `fossmodernicus-v1.0.1.zip` from the [Releases](https://github.com/administrakt0r/fossmodernicus/releases) page.
+1. Download `fossmodernicus-v1.0.2.zip` from the [Releases](https://github.com/administrakt0r/fossmodernicus/releases) page.
 2. Extract the archive into your FOSSBilling themes directory:
    ```bash
-   unzip fossmodernicus-v1.0.1.zip -d /path/to/fossbilling/themes/fossmodernicus
+   unzip fossmodernicus-v1.0.2.zip -d /path/to/fossbilling/themes/fossmodernicus
    ```
 3. Set appropriate permissions:
    ```bash

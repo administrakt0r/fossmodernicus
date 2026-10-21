@@ -68,7 +68,7 @@
                             <div class="product-card-header p-4 pb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="badge bg-primary-lt fw-medium">{{ cat.title }}</span>
-                                    {% if product.stock_control and product.quantity_in_stock <= 3 and product.quantity_in_stock > 0 %}
+                                    {% if product.stock_control|default(false) and product.quantity_in_stock|default(0) <= 3 and product.quantity_in_stock|default(0) > 0 %}
                                         <span class="badge bg-warning-lt">{{ 'Low Stock'|trans }}</span>
                                     {% endif %}
                                 </div>
@@ -76,7 +76,13 @@
                             </div>
 
                             <div class="product-card-pricing px-4 py-3 border-top border-bottom border-subtle bg-subtle">
-                                {% if product.pricing.type == 'recurrent' %}
+                                {% if product.type == 'domain' %}
+                                    <div class="d-flex align-items-baseline gap-1">
+                                        <span class="text-muted small">{{ 'From'|trans }}</span>
+                                        <span class="fs-2 fw-bold text-main">{{ (product.price_starting_from * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                                        <span class="text-muted small">/ {{ 'year'|trans }}</span>
+                                    </div>
+                                {% elseif product.pricing.type == 'recurrent' %}
                                     {% set lowest_price = null %}
                                     {% set lowest_period = null %}
                                     {% for code in ['1M', '3M', '6M', '1Y', '2Y', '3Y'] %}
@@ -146,7 +152,13 @@
                                 </div>
 
                                 <div class="product-card-pricing px-4 py-3 border-top border-bottom border-subtle bg-subtle">
-                                    {% if product.pricing.type == 'recurrent' %}
+                                    {% if product.type == 'domain' %}
+                                        <div class="d-flex align-items-baseline gap-1">
+                                            <span class="text-muted small">{{ 'From'|trans }}</span>
+                                            <span class="fs-2 fw-bold text-main">{{ (product.price_starting_from * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                                            <span class="text-muted small">/ {{ 'year'|trans }}</span>
+                                        </div>
+                                    {% elseif product.pricing.type == 'recurrent' %}
                                         {% set lowest_price = null %}
                                         {% set lowest_period = null %}
                                         {% for code in ['1M', '3M', '6M', '1Y', '2Y', '3Y'] %}
