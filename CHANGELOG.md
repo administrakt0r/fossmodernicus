@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.5
+
+- Fixed fatal HTTP 404 (`Page /support not found`) on support ticket submissions: added missing `{% block js %}{% endblock %}` in `html/layout_default.html.twig` and `html/layout_public.html.twig`, restoring script execution for child templates (`mod_support_tickets`, `mod_support_ticket`, `mod_order_manage`, `mod_invoice_invoice`).
+- Resolved form action fallback in `html/mod_support_tickets.html.twig`: set explicit `action="{{ 'support/ticket_create'|api_url }}"` preventing native browser submissions from defaulting to `POST /support`.
+- Added missing `flashMessage` implementation in `assets/js/theme.js` compatible with FOSSBilling reload/redirect notifications.
+- Fixed guest vs client ticket handling in `html/mod_support_ticket.html.twig`: set explicit form action `action="{{ (is_guest_ticket ? 'guest/support/ticket_reply' : 'support/ticket_reply')|api_url }}"` and passed proper hash parameters for guest ticket closures (`support/ticket_close`).
+- Set explicit API form action on service management ticket inquiries (`html/mod_order_manage.html.twig`).
+
 ## 1.0.4
 
 - Fixed fatal Twig `RuntimeError` during domain checkout under Twig strict mode (`Key "description" does not exist in partials/order_checkout.html.twig at line 48`).

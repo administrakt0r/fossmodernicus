@@ -259,14 +259,14 @@
                     <h5 class="modal-title fw-bold" id="orderTicketModalLabel">{{ 'Inquire About This Service'|trans }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
                 </div>
-                <form id="open-ticket-form">
+                <form id="open-ticket-form" method="post" action="{{ 'support/ticket_create'|api_url }}">
                     <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                     <input type="hidden" name="rel_type" value="order">
                     <input type="hidden" name="rel_id" value="{{ order.id }}">
                     <div class="modal-body p-4">
                         <div class="mb-3">
                             <label class="form-label fw-semibold">{{ 'Department'|trans }}</label>
-                            {{ mf.selectbox('support_helpdesk_id', client.support_helpdesk_get_pairs, request.support_helpdesk_id, 1) }}
+                            {{ mf.selectbox('support_helpdesk_id', client.support_helpdesk_get_pairs, request.support_helpdesk_id|default(''), 1) }}
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">{{ 'Subject'|trans }}</label>

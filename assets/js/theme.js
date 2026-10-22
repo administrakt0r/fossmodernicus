@@ -86,6 +86,42 @@
     }
   });
 
+  // Flash message handler compatible with FOSSBilling reload/redirect notifications
+  globalThis.flashMessage = function (options) {
+    options = options || {};
+    var message = options.message || '';
+    var reload = options.reload || false;
+    var type = options.type || 'info';
+    var key = 'flash-message';
+
+    if (!message) {
+      try {
+        var stored = sessionStorage.getItem(key);
+        if (stored) {
+          if (window.FOSSBilling && typeof window.FOSSBilling.message === 'function') {
+            window.FOSSBilling.message(stored, type);
+          }
+          sessionStorage.removeItem(key);
+        }
+      } catch (e) {}
+      return;
+    }
+
+    try {
+      sessionStorage.setItem(key, message);
+    } catch (e) {}
+
+    if (reload === true) {
+      window.location.reload();
+    } else if (typeof reload === 'string' && reload) {
+      window.location.assign(reload);
+    }
+  };
+
+  try {
+    globalThis.flashMessage({});
+  } catch (e) {}
+
   // 1. Color Theme Mode (Light / Dark)
   const THEME_KEY = 'fossmodernicus_theme_mode';
 

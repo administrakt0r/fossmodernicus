@@ -131,7 +131,7 @@
                     <h4 class="card-title h5 mb-0 fw-bold">{{ 'Post a Reply'|trans }}</h4>
                 </div>
                 <div class="card-body p-4">
-                    <form id="ticket-reply-form">
+                    <form id="ticket-reply-form" method="post" action="{{ (is_guest_ticket ? 'guest/support/ticket_reply' : 'support/ticket_reply')|api_url }}">
                         <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                         {% if is_guest_ticket %}
                             <input type="hidden" name="hash" value="{{ ticket.hash }}">
@@ -203,7 +203,7 @@
                 closeTicketBtn.disabled = true;
                 supportApi.post(
                     'support/ticket_close',
-                    { id: {{ ticket.id }} },
+                    {{ is_guest_ticket ? ("{ hash: '" ~ ticket.hash ~ "' }")|raw : ("{ id: " ~ ticket.id ~ " }")|raw }},
                     () => {
                         flashMessage({
                             message: `{{ 'Ticket #%s closed'|trans|format(ticket.id) }}`,

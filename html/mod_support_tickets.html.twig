@@ -112,23 +112,23 @@
                     <h5 class="modal-title fw-bold" id="openTicketModalLabel">{{ 'Submit a Support Request'|trans }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
                 </div>
-                <form id="ticket-submit" method="post">
+                <form id="ticket-submit" method="post" action="{{ 'support/ticket_create'|api_url }}">
                     <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                     <div class="modal-body p-4">
                         <div class="mb-3">
                             <label class="form-label fw-semibold" for="support-helpdesk-id">{{ 'Department'|trans }}</label>
-                            {{ mf.selectbox('support_helpdesk_id', client.support_helpdesk_get_pairs, request.support_helpdesk_id, 1) }}
+                            {{ mf.selectbox('support_helpdesk_id', client.support_helpdesk_get_pairs, request.support_helpdesk_id|default(''), 1) }}
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold" for="subject">{{ 'Subject'|trans }}</label>
-                            <input type="text" name="subject" class="form-control" id="subject" required value="{{ request.subject|e }}" placeholder="{{ 'Brief summary of your inquiry'|trans }}">
+                            <input type="text" name="subject" class="form-control" id="subject" required value="{{ request.subject|default('')|e }}" placeholder="{{ 'Brief summary of your inquiry'|trans }}">
                         </div>
                         {% if guest.support_kb_suggestions_enabled({ 'area': 'ticket' }) %}
-                            {{ include('mod_support_kb_suggestions.html.twig', { 'input_id': 'subject' }) }}
+                            {{ include('mod_support_kb_suggestions.html.twig', { 'input_id': 'subject' }, ignore_missing: true) }}
                         {% endif %}
                         <div class="mb-3">
                             <label class="form-label fw-semibold" for="message">{{ 'Description / Message'|trans }}</label>
-                            <textarea name="content" class="editor-textarea form-control" id="message" rows="6" required placeholder="{{ 'Provide as much detail as possible to help us resolve your issue quickly...'|trans }}">{{ request.content|e }}</textarea>
+                            <textarea name="content" class="editor-textarea form-control" id="message" rows="6" required placeholder="{{ 'Provide as much detail as possible to help us resolve your issue quickly...'|trans }}">{{ request.content|default('')|e }}</textarea>
                         </div>
                         {{ mf.recaptcha }}
                     </div>
@@ -146,13 +146,15 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const submitTicket = document.getElementById('ticket-submit');
-        const submitBtn = document.getElementById('btn-submit-ticket');
+        const submitBtn = document.getElementById('btn-submit-ticket') || (submitTicket ? submitTicket.querySelector('button[type="submit"]') : null);
 
         if (submitTicket) {
             submitTicket.addEventListener('submit', (event) => {
                 event.preventDefault();
-                submitBtn.disabled = true;
-                submitBtn.textContent = `{{ 'Submitting...'|trans }}`;
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span><span>{{ "Submitting..."|trans }}</span>';
+                }
 
                 FOSSBilling.api.client.post(
                     'support/ticket_create',
@@ -161,15 +163,17 @@
                         window.location = "{{ 'support/ticket'|url }}/" + res;
                     },
                     (res) => {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = `{{ 'Submit Ticket'|trans }}`;
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = `{{ 'Submit Ticket'|trans }}`;
+                        }
                         FOSSBilling.message(`${res.message} (${res.code})`, 'error');
                     }
                 );
             });
         }
 
-        {% if request.ticket %}
+        {% if request.ticket|default(false) %}
             const ticketModal = new bootstrap.Modal('#open-ticket-modal');
             ticketModal.show();
         {% endif %}
