@@ -4,11 +4,11 @@
 <aside class="theme-sidebar" id="theme-sidebar">
     <div class="theme-sidebar-brand">
         <a href="{{ '/'|url }}" class="d-flex align-items-center text-decoration-none">
-            {% if settings.custom_logo_url %}
+            {% if settings.custom_logo_url|default('') %}
                 <img src="{{ settings.custom_logo_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo" style="height: 40px; width: auto; max-width: 100%;">
-            {% elseif guest.system_company.logo_url %}
+            {% elseif guest.system_company.logo_url|default('') %}
                 <img src="{{ guest.system_company.logo_url }}" alt="{{ guest.system_company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo" style="height: 40px; width: auto; max-width: 100%;">
-            {% elseif company.logo_url %}
+            {% elseif company.logo_url|default('') %}
                 <img src="{{ company.logo_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo" style="height: 40px; width: auto; max-width: 100%;">
             {% else %}
                 <img src="{{ 'img/logo.svg'|asset_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo" style="height: 40px; width: auto; max-width: 100%;">
@@ -123,18 +123,18 @@
         {% endif %}
     </ul>
 
-    {% if client and settings.show_client_balance != '0' %}
+    {% if client and settings.show_client_balance|default('1') != '0' %}
     <div class="theme-sidebar-footer">
         <div class="theme-user-profile-badge">
             <div class="theme-avatar">
-                {{ profile.first_name|first|upper }}{{ profile.last_name|first|upper }}
+                {{ profile.first_name|default('')|first|upper }}{{ profile.last_name|default('')|first|upper }}
             </div>
             <div style="min-width: 0; flex: 1;">
                 <div style="font-weight: 600; font-size: 0.8125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    {{ profile.first_name }} {{ profile.last_name }}
+                    {{ profile.first_name|default('') }} {{ profile.last_name|default('') }}
                 </div>
                 <div style="font-size: 0.75rem; color: var(--text-muted);">
-                    {{ 'Balance'|trans }}: <strong style="color: var(--primary);">{{ profile.balance | format_currency(profile.currency ?? default_currency) }}</strong>
+                    {{ 'Balance'|trans }}: <strong style="color: var(--primary);">{{ profile.balance|default(0) | format_currency(profile.currency|default(default_currency|default('USD'))) }}</strong>
                 </div>
             </div>
         </div>

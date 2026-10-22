@@ -71,11 +71,11 @@
 
 <script src="{{ 'js/theme.js'|asset_url }}"></script>
 
-{% if settings.custom_css %}
+{% if settings.custom_css|default('') %}
     <style>{{ settings.custom_css|raw }}</style>
 {% endif %}
 
-{% if settings.custom_js %}
+{% if settings.custom_js|default('') %}
     <script>{{ settings.custom_js|raw }}</script>
 {% endif %}
 
@@ -83,6 +83,8 @@
 {% if guest.extension_is_on({ "mod": "cookieconsent" }) %}
     {{ include('mod_cookieconsent_index.html.twig', ignore_missing: true) }}
 {% endif %}
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;"></div>
 
 {{ render_widgets('client.theme.body.end') }}
 {{ debug_bar_render() }}

@@ -21,14 +21,14 @@
                         </a>
                         <h1 class="h3 fw-bold mb-0">{{ product.title }}</h1>
                     </div>
-                    {% if product.stock_control %}
-                        <span class="badge {% if product.quantity_in_stock > 3 %}bg-success-lt{% else %}bg-warning-lt{% endif %}">
-                            {{ product.quantity_in_stock }} {{ 'In Stock'|trans }}
+                    {% if product.stock_control|default(false) %}
+                        <span class="badge {% if product.quantity_in_stock|default(0) > 3 %}bg-success-lt{% else %}bg-warning-lt{% endif %}">
+                            {{ product.quantity_in_stock|default(0) }} {{ 'In Stock'|trans }}
                         </span>
                     {% endif %}
                 </div>
 
-                {% if product.description %}
+                {% if product.description|default('') %}
                     <div class="product-description small mb-0">
                         {{ (product.description ?? '')|markdown_to_html }}
                     </div>
@@ -36,23 +36,28 @@
             </div>
 
             {# Billing Cycle Selection #}
-            {% if product.pricing.type == 'recurrent' %}
+            {% if product.pricing.type|default('') == 'recurrent' %}
                 <div class="theme-card p-4 mb-4">
                     <h2 class="h5 fw-bold mb-1">{{ 'Select Billing Cycle'|trans }}</h2>
                     <p class="text-muted small mb-3">{{ 'Choose how frequently you would like to be billed for this service.'|trans }}</p>
 
                     <div class="row g-3" id="billing-cycle-options">
-                        {% set first_checked = false %}
-                        {% for code, prices in product.pricing.recurrent %}
+                        {% set enabled_cycles = [] %}
+                        {% for code, prices in product.pricing.recurrent|default({}) %}
                             {% if prices.enabled %}
-                                {% set is_selected = (request.period is defined and request.period == code) or (not first_checked and request.period is not defined) %}
-                                {% if is_selected %}{% set first_checked = true %}{% endif %}
+                                {% set enabled_cycles = enabled_cycles|merge([code]) %}
+                            {% endif %}
+                        {% endfor %}
+                        {% set default_period = request.period|default(enabled_cycles|first) %}
+                        {% for code, prices in product.pricing.recurrent|default({}) %}
+                            {% if prices.enabled %}
+                                {% set is_selected = (code == default_period) %}
                                 <div class="col-12 col-sm-6">
                                     <label class="billing-cycle-card theme-card p-3 h-100 d-flex flex-column justify-content-between cursor-pointer {% if is_selected %}selected{% endif %}" for="period-{{ code }}">
                                         <div class="d-flex justify-content-between align-items-start mb-2">
                                             <div>
                                                 <input type="radio" name="period" id="period-{{ code }}" value="{{ code }}" class="form-check-input me-2 period-radio"
-                                                       data-price="{{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}"
+                                                       data-price="{{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}"
                                                        data-title="{{ periods[code]|default(code) }}"
                                                        {% if is_selected %}checked="checked"{% endif %}>
                                                 <strong class="text-main">{{ periods[code]|default(code) }}</strong>
@@ -62,9 +67,9 @@
                                             {% endif %}
                                         </div>
                                         <div class="mt-2">
-                                            <span class="fs-4 fw-bold text-main">{{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                                            <span class="fs-4 fw-bold text-main">{{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}</span>
                                             {% if prices.setup != '0.00' %}
-                                                <div class="text-muted small mt-1">+ {{ (prices.setup * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }} {{ 'Setup Fee'|trans }}</div>
+                                                <div class="text-muted small mt-1">+ {{ (prices.setup * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }} {{ 'Setup Fee'|trans }}</div>
                                             {% endif %}
                                         </div>
                                     </label>
@@ -73,15 +78,15 @@
                         {% endfor %}
                     </div>
                 </div>
-            {% elseif product.pricing.type == 'once' %}
+            {% elseif product.pricing.type|default('') == 'once' %}
                 <div class="theme-card p-4 mb-4">
                     <h2 class="h5 fw-bold mb-1">{{ 'Pricing'|trans }}</h2>
                     <div class="d-flex align-items-baseline gap-2 mt-2">
-                        <span class="fs-3 fw-bold text-main">{{ (product.pricing.once.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                        <span class="fs-3 fw-bold text-main">{{ ((product.pricing.once.price|default(0)) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}</span>
                         <span class="badge bg-primary-lt">{{ 'One-time Payment'|trans }}</span>
                     </div>
                 </div>
-            {% elseif product.pricing.type == 'free' %}
+            {% elseif product.pricing.type|default('') == 'free' %}
                 <div class="theme-card p-4 mb-4">
                     <h2 class="h5 fw-bold mb-1">{{ 'Pricing'|trans }}</h2>
                     <div class="d-flex align-items-baseline gap-2 mt-2">
@@ -91,7 +96,7 @@
             {% endif %}
 
             {# Quantity Selector #}
-            {% if product.allow_quantity_select %}
+            {% if product.allow_quantity_select|default(false) %}
                 <div class="theme-card p-4 mb-4">
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                         <div>
@@ -99,7 +104,7 @@
                             <p class="text-muted small mb-0">{{ 'How many instances of this plan would you like to order?'|trans }}</p>
                         </div>
                         <div style="width: 120px;">
-                            <input type="number" name="quantity" id="order-quantity" value="1" min="1" {% if product.stock_control %}max="{{ product.quantity_in_stock }}"{% endif %} class="form-control text-center">
+                            <input type="number" name="quantity" id="order-quantity" value="1" min="1" {% if product.stock_control|default(false) %}max="{{ product.quantity_in_stock|default(1) }}"{% endif %} class="form-control text-center">
                         </div>
                     </div>
                 </div>
@@ -112,7 +117,7 @@
                     <h2 class="h5 fw-bold mb-3">{{ 'Service Configuration'|trans }}</h2>
                     {{ include(tpl, product) }}
                 </div>
-            {% elseif product.form_id and guest.extension_is_on({"mod": "formbuilder"}) %}
+            {% elseif product.form_id|default(null) and guest.extension_is_on({"mod": "formbuilder"}) %}
                 <div class="theme-card p-4 mb-4">
                     <h2 class="h5 fw-bold mb-3">{{ 'Custom Options'|trans }}</h2>
                     {% set form = guest.formbuilder_get({"id": product.form_id}) %}
@@ -121,7 +126,7 @@
             {% endif %}
 
             {# Addons & Optional Extras #}
-            {% if product.addons is defined and product.addons|length > 0 %}
+            {% if product.addons is defined and product.addons|default([])|length > 0 %}
                 <div class="theme-card p-4 mb-4">
                     <h2 class="h5 fw-bold mb-1">{{ 'Recommended Addons'|trans }}</h2>
                     <p class="text-muted small mb-3">{{ 'Enhance your plan with these optional features and services.'|trans }}</p>
@@ -131,31 +136,31 @@
                             <div class="col-12">
                                 <div class="theme-card p-3 border-subtle d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
                                     <div class="d-flex align-items-start gap-3">
-                                        {% if addon.icon_url %}
+                                        {% if addon.icon_url|default('') %}
                                             <img src="{{ addon.icon_url }}" alt="" width="36" height="36" class="rounded">
                                         {% endif %}
                                         <div>
                                             <strong class="d-block text-main mb-1">{{ addon.title }}</strong>
-                                            {% if addon.description %}
+                                            {% if addon.description|default('') %}
                                                 <div class="text-muted small mb-0">{{ (addon.description ?? '')|markdown_to_html }}</div>
                                             {% endif %}
                                         </div>
                                     </div>
 
                                     <div class="d-flex align-items-center gap-2 align-self-end align-self-sm-center">
-                                        {% if addon.pricing.type is same as('recurrent') %}
+                                        {% if addon.pricing.type|default('') is same as('recurrent') %}
                                             <select class="form-select form-select-sm" name="addons[{{ addon.id }}][period]" style="min-width: 140px;">
-                                                {% for code, prices in addon.pricing.recurrent %}
+                                                {% for code, prices in addon.pricing.recurrent|default({}) %}
                                                     {% if prices.enabled %}
                                                         <option value="{{ code }}">
-                                                            {{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }} ({{ periods[code] }})
+                                                            {{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }} ({{ periods[code] }})
                                                         </option>
                                                     {% endif %}
                                                 {% endfor %}
                                             </select>
-                                        {% elseif addon.pricing.type is same as('once') %}
+                                        {% elseif addon.pricing.type|default('') is same as('once') %}
                                             <span class="badge bg-primary-lt">
-                                                {{ (addon.pricing.once.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                                                {{ ((addon.pricing.once.price|default(0)) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}
                                             </span>
                                         {% endif %}
 
@@ -183,9 +188,9 @@
                 <div class="mb-3">
                     <div class="fw-bold text-main">{{ product.title }}</div>
                     <div class="text-muted small" id="summary-period-label">
-                        {% if product.pricing.type == 'recurrent' %}
+                        {% if product.pricing.type|default('') == 'recurrent' %}
                             {{ 'Recurring billing'|trans }}
-                        {% elseif product.pricing.type == 'once' %}
+                        {% elseif product.pricing.type|default('') == 'once' %}
                             {{ 'One-time fee'|trans }}
                         {% else %}
                             {{ 'Free service'|trans }}
@@ -196,16 +201,16 @@
                 <div class="d-flex justify-content-between align-items-center py-2 border-top border-bottom border-subtle my-3">
                     <span class="text-muted small">{{ 'Subtotal Due'|trans }}</span>
                     <span class="fs-4 fw-bold text-main" id="summary-price-display">
-                        {% if product.pricing.type == 'recurrent' %}
-                            {% for code, prices in product.pricing.recurrent %}
+                        {% if product.pricing.type|default('') == 'recurrent' %}
+                            {% for code, prices in product.pricing.recurrent|default({}) %}
                                 {% if loop.first %}
-                                    {{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                                    {{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}
                                 {% endif %}
                             {% endfor %}
-                        {% elseif product.pricing.type == 'once' %}
-                            {{ (product.pricing.once.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                        {% elseif product.pricing.type|default('') == 'once' %}
+                            {{ ((product.pricing.once.price|default(0)) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}
                         {% else %}
-                            {{ 0|format_currency(cart_currency.code ?? default_currency) }}
+                            {{ 0|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}
                         {% endif %}
                     </span>
                 </div>

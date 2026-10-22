@@ -148,7 +148,7 @@
             <div class="form-text">{{ 'When unchecked, no feature boxes are rendered on the frontpage.'|trans }}</div>
         </div>
 
-        {% for i in 1..4 %}
+        {% for i in [1, 2, 3, 4] %}
             <div class="col-12 col-md-6">
                 <div class="card p-3 bg-light border">
                     <h5 class="fw-bold mb-2">{{ 'Feature Box'|trans }} #{{ i }}</h5>
@@ -213,7 +213,7 @@
         <div class="col-12">
             <h5 class="fw-bold mt-2 mb-3">{{ 'Custom Footer Navigation Links'|trans }}</h5>
             <div class="d-flex flex-column gap-3">
-                {% for i in 1..5 %}
+                {% for i in [1, 2, 3, 4, 5] %}
                     {% set enabled_key = 'footer_link_' ~ i ~ '_enabled' %}
                     {% set title_key = 'footer_link_' ~ i ~ '_title' %}
                     {% set page_key = 'footer_link_' ~ i ~ '_page' %}

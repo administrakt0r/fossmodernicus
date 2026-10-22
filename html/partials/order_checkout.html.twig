@@ -45,18 +45,29 @@
                                 <tr>
                                     <td>
                                         <strong class="text-main d-block">{{ item.title }}</strong>
-                                        {% if item.description %}
-                                            <span class="text-muted small">{{ item.description }}</span>
+                                        {% set sld = item.register_sld|default(item.transfer_sld|default('')) %}
+                                        {% set tld = item.register_tld|default(item.transfer_tld|default('')) %}
+                                        {% set domain_name = sld ? (tld starts with '.' ? sld ~ tld : sld ~ '.' ~ tld) : '' %}
+                                        {% if item.type|default('') == 'domain' and domain_name %}
+                                            <span class="text-primary small font-monospace d-block mt-1">
+                                                {{ domain_name }} ({{ (item.action|default('register') == 'transfer' ? 'Transfer' : 'Registration')|trans }})
+                                            </span>
+                                        {% elseif item.description|default('') %}
+                                            <span class="text-muted small d-block mt-1">{{ item.description }}</span>
                                         {% endif %}
                                     </td>
                                     <td>
                                         <span class="badge bg-secondary-lt">
-                                            {{ periods[item.period]|default(item.period)|default('One-time') }}
+                                            {% if item.type|default('') == 'domain' and item.register_years|default(0) > 0 %}
+                                                {{ item.register_years }} {{ (item.register_years > 1 ? 'Years' : 'Year')|trans }}
+                                            {% else %}
+                                                {{ periods[item.period|default('')]|default(item.period|default('One-time'|trans)) }}
+                                            {% endif %}
                                         </span>
                                     </td>
                                     <td class="text-center font-monospace">{{ item.quantity|default(1) }}</td>
                                     <td class="text-end fw-bold text-main font-monospace">
-                                        {{ (item.total * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                                        {{ (item.total * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}
                                     </td>
                                     <td class="text-end">
                                         <a href="{{ 'cart/remove_item'|api_url({ id: item.id }, 'guest') }}" class="btn btn-sm btn-outline-danger p-1"
@@ -75,7 +86,7 @@
             {# Promo Code Card #}
             <div class="theme-card p-4 mb-4">
                 <h2 class="h5 fw-bold mb-2">{{ 'Promotional Code'|trans }}</h2>
-                {% if cart.promocode %}
+                {% if cart.promocode|default(null) %}
                     <div class="d-flex flex-wrap align-items-center justify-content-between p-3 rounded" style="background-color: var(--color-success-bg); border: 1px solid var(--color-success);">
                         <div class="d-flex align-items-center gap-2">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-success"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
@@ -104,11 +115,11 @@
                     <div class="d-flex flex-wrap align-items-center justify-content-between p-3 rounded bg-subtle border border-subtle">
                         <div class="d-flex align-items-center gap-3">
                             <div class="theme-avatar" style="width: 44px; height: 44px; font-size: 1rem;">
-                                {{ profile.first_name|first|upper }}{{ profile.last_name|first|upper }}
+                                {{ profile.first_name|default('')|first|upper }}{{ profile.last_name|default('')|first|upper }}
                             </div>
                             <div>
-                                <strong class="text-main d-block">{{ profile.first_name }} {{ profile.last_name }}</strong>
-                                <span class="text-muted small">{{ profile.email }}</span>
+                                <strong class="text-main d-block">{{ profile.first_name|default('') }} {{ profile.last_name|default('') }}</strong>
+                                <span class="text-muted small">{{ profile.email|default('') }}</span>
                             </div>
                         </div>
                         <div>
@@ -180,7 +191,7 @@
                                     </div>
 
                                     {% set honeypot = antispam_honeypot() %}
-                                    {% if honeypot.enabled %}
+                                    {% if honeypot.enabled|default(false) %}
                                         <div style="position: absolute; left: -9999px;" aria-hidden="true">
                                             <label for="order_reg_honeypot_{{ honeypot.field }}">{{ 'Do not fill this field'|trans }}</label>
                                             <input type="text" id="order_reg_honeypot_{{ honeypot.field }}" name="{{ honeypot.field }}" value="" tabindex="-1" autocomplete="off" aria-hidden="true"/>
@@ -205,8 +216,8 @@
             <form method="post" action="{{ 'cart/checkout'|api_url }}" id="order-checkout-form" {{ fb_api_form({ callback: 'onOrderCheckout' }) }}>
                 <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                 {# Payment Method Selection #}
-                {% set enough_in_balance = client ? client.client_balance_get_total >= cart.total : false %}
-                {% if cart.total > 0 and not enough_in_balance %}
+                {% set enough_in_balance = client ? (client.client_balance_get_total|default(0) >= cart.total|default(0)) : false %}
+                {% if cart.total|default(0) > 0 and not enough_in_balance %}
                     <div class="theme-card p-4 mb-4">
                         <h2 class="h5 fw-bold mb-1">{{ 'Payment Method'|trans }}</h2>
                         <p class="text-muted small mb-3">{{ 'Select your preferred payment gateway to complete this transaction securely.'|trans }}</p>
@@ -214,12 +225,12 @@
                         <div class="row g-3">
                             {% set gateway_selected = false %}
                             {% for gtw in guest.invoice_gateways %}
-                                {% if cart_currency.code in gtw.accepted_currencies and (gtw.allow_single or (cart.subscribable|default(false) and gtw.allow_recurrent)) %}
+                                {% if cart_currency.code|default('') in gtw.accepted_currencies|default([]) and (gtw.allow_single|default(false) or (cart.subscribable|default(false) and gtw.allow_recurrent|default(false))) %}
                                     <div class="col-12 col-sm-6">
                                         <label class="theme-card p-3 h-100 d-flex align-items-center gap-3 cursor-pointer payment-method-card {% if not gateway_selected %}selected{% endif %}" for="gtw-{{ gtw.id }}">
                                             <input type="radio" name="gateway_id" id="gtw-{{ gtw.id }}" value="{{ gtw.id }}" class="form-check-input me-1 gateway-radio" {% if not gateway_selected %}checked="checked"{% endif %}>
                                             <div class="d-flex align-items-center gap-2">
-                                                {% if gtw.logo.logo %}
+                                                {% if gtw.logo.logo|default(null) %}
                                                     <img src="{{ gtw.logo.logo }}" alt="{{ gtw.title }}" style="max-height: 28px; max-width: 80px; object-fit: contain;">
                                                 {% endif %}
                                                 <strong class="text-main">{{ gtw.title }}</strong>
@@ -285,27 +296,27 @@
                 <div class="d-flex justify-content-between align-items-center py-2">
                     <span class="text-muted small">{{ 'Subtotal'|trans }}</span>
                     <span class="fw-bold text-main font-monospace">
-                        {{ (cart.subtotal * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                        {{ (cart.subtotal|default(0) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}
                     </span>
                 </div>
 
-                {% if cart.discount > 0 %}
+                {% if cart.discount|default(0) > 0 %}
                     <div class="d-flex justify-content-between align-items-center py-2 text-success">
                         <span class="small">{{ 'Discount'|trans }}</span>
                         <span class="fw-bold font-monospace">
-                            - {{ (cart.discount * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                            - {{ (cart.discount|default(0) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}
                         </span>
                     </div>
                 {% endif %}
 
                 {% set tax_amount = 0 %}
                 {% if client and client.client_is_taxable %}
-                    {% set tax_rate = client.invoice_get_tax_rate %}
-                    {% set tax_amount = cart.total * tax_rate / 100 %}
+                    {% set tax_rate = client.invoice_get_tax_rate|default(0) %}
+                    {% set tax_amount = cart.total|default(0) * tax_rate / 100 %}
                     <div class="d-flex justify-content-between align-items-center py-2">
                         <span class="text-muted small">{{ 'VAT / Tax'|trans }} ({{ tax_rate }}%)</span>
                         <span class="fw-bold text-main font-monospace">
-                            {{ (tax_amount * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                            {{ (tax_amount * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}
                         </span>
                     </div>
                 {% endif %}
@@ -316,7 +327,7 @@
                         <span class="text-muted small">{{ 'Including applicable taxes'|trans }}</span>
                     </div>
                     <span class="fs-2 fw-bold text-main font-monospace">
-                        {{ ((cart.total + tax_amount) * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                        {{ ((cart.total|default(0) + tax_amount) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}
                     </span>
                 </div>
 
@@ -376,30 +387,49 @@
                 this.closest('.payment-method-card')?.classList.add('selected');
             });
         });
+
+        const checkoutForm = document.getElementById('order-checkout-form');
+        const deskBtn = document.getElementById('checkout-btn-desktop');
+        const mobBtn = document.getElementById('checkout-btn-mobile');
+
+        function setButtonsLoading(isLoading) {
+            [deskBtn, mobBtn].forEach(btn => {
+                if (!btn) return;
+                if (isLoading) {
+                    if (!btn.dataset.origHtml) btn.dataset.origHtml = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span><span>{{ "Placing Order..."|trans }}</span>';
+                } else {
+                    btn.disabled = false;
+                    if (btn.dataset.origHtml) btn.innerHTML = btn.dataset.origHtml;
+                }
+            });
+        }
+
+        if (checkoutForm) {
+            checkoutForm.addEventListener('submit', function() {
+                setButtonsLoading(true);
+            });
+        }
+
+        window.onOrderCheckoutError = function() {
+            setButtonsLoading(false);
+        };
     });
 
     function onOrderCheckout(result) {
-        if (result.invoice_hash) {
-            const redirectModalEl = document.getElementById('payment-redirect-modal');
-            const bsModal = new bootstrap.Modal(redirectModalEl);
-            bsModal.show();
+        if (typeof FOSSBilling !== 'undefined' && typeof FOSSBilling.message === 'function') {
+            FOSSBilling.message('{{ "Order placed successfully! Redirecting..."|trans }}', 'success');
+        }
 
-            FOSSBilling.api.guest.post('invoice/payment', {
-                hash: result.invoice_hash,
-                gateway_id: result.gateway_id,
-                auto_redirect: true
-            }, function(r) {
-                if (r.iframe) {
-                    document.getElementById('payment-redirect-inner').innerHTML = r.result;
-                } else {
-                    const banklink = '{{ "invoice/banklink"|url }}' + '/' + result.invoice_hash + '/' + result.gateway_id;
-                    window.location.href = banklink;
-                }
-            });
-        } else if (result.order_id) {
-            window.location.href = ('{{ "order/service/manage"|url }}' + '/' + result.order_id);
+        const orderId = result.order_id || (Array.isArray(result.orders) && result.orders.length ? result.orders[0] : null);
+
+        if (result.invoice_hash) {
+            window.location.href = '{{ "invoice"|url }}/' + result.invoice_hash;
+        } else if (orderId) {
+            window.location.href = '{{ "order/service/manage"|url }}/' + orderId;
         } else {
-            window.location.href = '{{ "invoice"|url }}';
+            window.location.href = '{{ "order/service"|url }}';
         }
     }
     </script>

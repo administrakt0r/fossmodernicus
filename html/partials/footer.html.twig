@@ -14,7 +14,7 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
             <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-1">
                 <span>
-                    {% if settings.footer_copyright %}
+                    {% if settings.footer_copyright|default('') %}
                         &copy; {{ 'now'|date('Y') }} {{ settings.footer_copyright }}
                     {% else %}
                         &copy; {{ 'now'|date('Y') }} {{ company.signature|default(company.name|default('Client Portal')) }}. {{ 'All rights reserved.'|trans }}

@@ -1,0 +1,173 @@
+{% import 'macro_functions.html.twig' as mf %}
+{% set nr = invoice.serie ~ "%05s"|format(invoice.nr) %}
+{% set seller = invoice.seller %}
+{% set buyer = invoice.buyer %}
+{% set company = guest.system_company %}
+
+<!DOCTYPE html>
+<html lang="{{ current_lang|default('en') }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>{{ 'Invoice'|trans }} #{{ nr }}</title>
+    <link rel="stylesheet" href="{{ 'css/tabler.min.css' | asset_url }}">
+    <link rel="stylesheet" href="{{ 'css/theme.css' | asset_url }}">
+    <link rel="shortcut icon" href="{{ guest.system_company.favicon_url ?? ('branding/favicon.ico'|url) }}">
+    <style>
+        @media print {
+            .d-print-none { display: none !important; }
+            body { background: #fff !important; color: #000 !important; }
+            .print-container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            .card { border: none !important; box-shadow: none !important; }
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+        }
+        @media screen {
+            body { background: #f8fafc; padding: 2rem 0; }
+            .print-container { max-width: 820px; margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+<div class="print-container">
+    <div class="d-print-none mb-3 d-flex justify-content-between align-items-center px-3">
+        <a href="{{ ('invoice/' ~ invoice.hash)|url }}" class="btn btn-outline-secondary btn-sm">
+            &larr; {{ 'Back to Invoice'|trans }}
+        </a>
+        <button onclick="window.print()" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            {{ 'Print Invoice'|trans }}
+        </button>
+    </div>
+
+    <div class="card theme-card shadow-sm border">
+        <div class="card-body p-4 p-md-5">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4">
+                <div>
+                    {% if company.logo_url|default('') %}
+                        <img src="{{ company.logo_url }}" alt="{{ company.name|default('') }}" style="max-height: 48px;" class="mb-2">
+                    {% else %}
+                        <h2 class="h3 fw-bold mb-1">{{ company.name|default('') }}</h2>
+                    {% endif %}
+                    <div class="text-muted small">
+                        {% if seller.address|default('') %}{{ seller.address }}<br>{% endif %}
+                        {% if seller.company_vat|default('') %}{{ 'VAT'|trans }}: {{ seller.company_vat }}<br>{% endif %}
+                        {% if seller.phone|default('') %}{{ 'Phone'|trans }}: {{ seller.phone }}<br>{% endif %}
+                        {% if seller.email|default('') %}{{ seller.email }}{% endif %}
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-light text-dark fs-6 px-3 py-2 border mb-2">{{ 'INVOICE'|trans }}</span>
+                    <h3 class="fw-bold mb-1 text-primary">#{{ nr }}</h3>
+                    <div>{{ mf.status_badge(invoice.status, 'invoice') }}</div>
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div class="row g-4 mb-4">
+                <div class="col-sm-6">
+                    <span class="text-uppercase text-muted fs-8 fw-bold">{{ 'Billed To'|trans }}</span>
+                    <h5 class="fw-bold mt-1 mb-1">{{ buyer.first_name|default('') }} {{ buyer.last_name|default('') }}</h5>
+                    <div class="text-muted small">
+                        {% if buyer.company|default('') %}{{ buyer.company }}<br>{% endif %}
+                        {% if buyer.address|default('') %}{{ buyer.address }}<br>{% endif %}
+                        {% if buyer.city|default('') or buyer.country|default('') %}{{ buyer.city|default('') }}{% if buyer.city|default('') and buyer.country|default('') %}, {% endif %}{{ buyer.country|default('') }}<br>{% endif %}
+                        {{ buyer.email|default('') }}
+                    </div>
+                </div>
+                <div class="col-sm-6 text-sm-end">
+                    <div class="row g-2 justify-content-sm-end">
+                        <div class="col-auto text-sm-end">
+                            <span class="text-muted small d-block">{{ 'Invoice Date'|trans }}</span>
+                            <span class="fw-semibold">{{ invoice.created_at|format_date }}</span>
+                        </div>
+                        <div class="col-auto text-sm-end ms-4">
+                            <span class="text-muted small d-block">{{ 'Due Date'|trans }}</span>
+                            <span class="fw-semibold text-danger">{{ invoice.due_at ? invoice.due_at|format_date : '-' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if invoice.text_1|default('') %}
+                <div class="card mb-4 bg-light border-0">
+                    <div class="card-body p-3 small">
+                        {{ invoice.text_1|markdown_to_html }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Line Items -->
+            <div class="table-responsive mb-4">
+                <table class="table table-vcenter">
+                    <thead>
+                        <tr class="text-uppercase fs-8 text-muted border-bottom">
+                            <th style="width: 5%;">#</th>
+                            <th>{{ 'Description'|trans }}</th>
+                            <th class="text-center" style="width: 20%;">{{ 'Price'|trans }}</th>
+                            <th class="text-end" style="width: 20%;">{{ 'Total'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i, item in invoice.lines %}
+                            <tr>
+                                <td class="text-muted small">{{ i + 1 }}</td>
+                                <td>
+                                    <div class="fw-semibold">{{ item.title }}</div>
+                                </td>
+                                <td class="text-center">
+                                    {{ item.price|format_currency(invoice.currency|default(default_currency|default('USD'))) }}
+                                    {% if item.quantity|default(1) > 1 %}
+                                        <span class="text-muted small d-block">&times; {{ item.quantity }}{% if item.unit is defined and item.unit %} {{ item.unit }}{% endif %}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end fw-semibold">
+                                    {{ item.total|format_currency(invoice.currency|default(default_currency|default('USD'))) }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totals -->
+            <div class="row justify-content-end mb-4">
+                <div class="col-md-5">
+                    <table class="table table-sm table-borderless">
+                        <tbody>
+                            {% if invoice.tax|default(0) > 0 %}
+                                <tr class="text-end">
+                                    <td class="text-muted">{{ invoice.taxname|default('Tax'|trans) }} {{ invoice.taxrate|default(0) }}%</td>
+                                    <td class="fw-semibold">{{ invoice.tax|format_currency(invoice.currency|default(default_currency|default('USD'))) }}</td>
+                                </tr>
+                            {% endif %}
+                            {% if invoice.discount|default(0) > 0 %}
+                                <tr class="text-end">
+                                    <td class="text-muted">{{ 'Discount'|trans }}</td>
+                                    <td class="fw-semibold text-success">-{{ invoice.discount|format_currency(invoice.currency|default(default_currency|default('USD'))) }}</td>
+                                </tr>
+                            {% endif %}
+                            <tr class="text-end border-top">
+                                <td class="h5 fw-bold pt-2">{{ 'Total Due'|trans }}</td>
+                                <td class="h5 fw-bold text-primary pt-2">{{ invoice.total|format_currency(invoice.currency|default(default_currency|default('USD'))) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% if invoice.text_2|default('') %}
+                <div class="border-top pt-3 mt-4 small text-muted">
+                    {{ (invoice.text_2 ?? '')|markdown_to_html }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</body>
+</html>

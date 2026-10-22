@@ -7,7 +7,10 @@
     {{ render_widgets('client.index.dashboard.content.before') }}
 
     {% if client %}
-        {{ render_widgets('client.index.dashboard.client.before') }}
+        {% set dashboard = client.index_get_dashboard %}
+        {% set profile = dashboard.profile %}
+        {% set recent_invoices = client.invoice_get_list({ "per_page": 5 }).list|default([]) %}
+        {{ render_widgets('client.index.dashboard.client.before', { 'dashboard': dashboard, 'profile': profile }) }}
 
         <!-- Welcome Banner -->
         <div class="theme-card mb-4" style="border-left: 4px solid var(--primary);">
@@ -85,7 +88,7 @@
                 </div>
                 <div class="theme-stat-content">
                     <div class="theme-stat-label">{{ 'Account Balance'|trans }}</div>
-                    <div class="theme-stat-value" style="color: var(--color-success);">{{ profile.balance | format_currency(profile.currency ?? default_currency) }}</div>
+                    <div class="theme-stat-value" style="color: var(--color-success);">{{ profile.balance|default(0) | format_currency(profile.currency|default(default_currency|default('USD'))) }}</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
                         <a href="{{ 'client/balance'|url }}">{{ 'Add funds'|trans }} &rarr;</a>
                     </div>
@@ -104,7 +107,7 @@
                         <a href="{{ 'order/service'|url }}" class="theme-btn theme-btn-secondary theme-btn-sm">{{ 'View All'|trans }}</a>
                     </div>
                     <div class="theme-card-body p-0 flex-grow-1">
-                        {% if dashboard.recent_orders and dashboard.recent_orders|length > 0 %}
+                        {% if dashboard.recent_orders is defined and dashboard.recent_orders|length > 0 %}
                             <div class="table-responsive">
                                 <table class="theme-table mb-0">
                                     <thead>
@@ -154,7 +157,7 @@
                         <a href="{{ 'invoice'|url }}" class="theme-btn theme-btn-secondary theme-btn-sm">{{ 'View All'|trans }}</a>
                     </div>
                     <div class="theme-card-body p-0 flex-grow-1">
-                        {% if dashboard.recent_invoices and dashboard.recent_invoices|length > 0 %}
+                        {% if recent_invoices is defined and recent_invoices|length > 0 %}
                             <div class="table-responsive">
                                 <table class="theme-table mb-0">
                                     <thead>
@@ -166,7 +169,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for invoice in dashboard.recent_invoices %}
+                                        {% for invoice in recent_invoices %}
                                             <tr>
                                                 <td>
                                                     <a href="{{ 'invoice/' ~ invoice.hash|url }}" style="font-weight: 600;">
@@ -175,7 +178,7 @@
                                                     <div style="font-size: 0.75rem; color: var(--text-muted);">{{ invoice.created_at|format_date }}</div>
                                                 </td>
                                                 <td style="font-weight: 600;">
-                                                    {{ invoice.total | format_currency(invoice.currency ?? default_currency) }}
+                                                    {{ invoice.total | format_currency(invoice.currency|default(default_currency|default('USD'))) }}
                                                 </td>
                                                 <td>
                                                     <span class="theme-badge theme-badge-{{ invoice.status == 'paid' ? 'success' : (invoice.status == 'unpaid' ? 'warning' : 'secondary') }}">
@@ -211,7 +214,7 @@
                 <a href="{{ 'support'|url }}" class="theme-btn theme-btn-secondary theme-btn-sm">{{ 'All Tickets'|trans }}</a>
             </div>
             <div class="theme-card-body p-0">
-                {% if dashboard.recent_tickets and dashboard.recent_tickets|length > 0 %}
+                {% if dashboard.recent_tickets is defined and dashboard.recent_tickets|length > 0 %}
                     <div class="table-responsive">
                         <table class="theme-table mb-0">
                             <thead>
@@ -350,20 +353,25 @@
                                         <div class="product-card-pricing p-4 border-top border-bottom border-subtle mt-auto">
                                             <div class="small text-muted mb-1">{{ 'Starting at'|trans }}</div>
                                             <div class="d-flex align-items-baseline gap-1">
-                                                {% if product.pricing.type == 'recurrent' %}
-                                                    {% for code, prices in product.pricing.recurrent %}
+                                                {% if product.pricing.type|default('') == 'recurrent' %}
+                                                    {% for code, prices in product.pricing.recurrent|default({}) %}
                                                         {% if loop.first %}
                                                             <span class="display-6 fw-bold text-main font-monospace">
-                                                                {{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                                                                {{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}
                                                             </span>
                                                             <span class="text-muted small">/ {{ guest.system_periods[code]|default(code)|trans }}</span>
                                                         {% endif %}
                                                     {% endfor %}
-                                                {% elseif product.pricing.type == 'once' %}
+                                                {% elseif product.pricing.type|default('') == 'once' %}
                                                     <span class="display-6 fw-bold text-main font-monospace">
-                                                        {{ (product.pricing.once.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                                                        {{ ((product.pricing.once.price|default(0)) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}
                                                     </span>
                                                     <span class="text-muted small">/ {{ 'one-time'|trans }}</span>
+                                                {% elseif product.type == 'domain' and product.price_starting_from|default(0) > 0 %}
+                                                    <span class="display-6 fw-bold text-main font-monospace">
+                                                        {{ (product.price_starting_from * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}
+                                                    </span>
+                                                    <span class="text-muted small">/ {{ 'yr'|trans }}</span>
                                                 {% else %}
                                                     <span class="display-6 fw-bold text-success font-monospace">{{ 'Free'|trans }}</span>
                                                 {% endif %}

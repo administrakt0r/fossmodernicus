@@ -18,7 +18,7 @@
         {% if client and settings.show_client_balance != '0' %}
             <div class="theme-balance-pill d-none d-sm-inline-flex">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                <span>{{ profile.balance | format_currency(profile.currency ?? default_currency) }}</span>
+                <span>{{ profile.balance|default(0) | format_currency(profile.currency|default(default_currency|default('USD'))) }}</span>
             </div>
         {% endif %}
 
@@ -34,13 +34,13 @@
             <div class="theme-user-menu">
                 <button type="button" class="theme-toggle-btn" id="theme-user-dropdown-btn" aria-label="{{ 'User profile menu'|trans }}" aria-haspopup="true" style="border: none; background: transparent; padding: 0;">
                     <div class="theme-avatar">
-                        {{ profile.first_name|first|upper }}{{ profile.last_name|first|upper }}
+                        {{ profile.first_name|default('')|first|upper }}{{ profile.last_name|default('')|first|upper }}
                     </div>
                 </button>
                 <div id="theme-user-dropdown-menu" class="theme-card d-none position-absolute end-0 mt-2 p-2 shadow-lg" style="width: 220px; z-index: 1050; border-radius: var(--radius-md);">
                     <div class="px-3 py-2 border-bottom border-subtle">
-                        <div style="font-weight: 600; font-size: 0.875rem;">{{ profile.first_name }} {{ profile.last_name }}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); word-break: break-all;">{{ profile.email }}</div>
+                        <div style="font-weight: 600; font-size: 0.875rem;">{{ profile.first_name|default('') }} {{ profile.last_name|default('') }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); word-break: break-all;">{{ profile.email|default('') }}</div>
                     </div>
                     <a href="{{ 'client/profile'|url }}" class="theme-nav-link mt-1">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>

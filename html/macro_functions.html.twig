@@ -9,24 +9,24 @@
         {% set config = guest.antispam_recaptcha %}
     {% endif %}
 
-    {% if config is defined and config.enabled %}
+    {% if config is defined and config.enabled|default(false) %}
         {% set provider = config.captcha_provider|default('recaptcha_v2') %}
         {% if provider == 'turnstile' %}
-            {% if config.turnstile_site_key %}
+            {% if config.turnstile_site_key|default('') %}
                 <div class="mb-3">
                     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
                     <div class="cf-turnstile" data-sitekey="{{ config.turnstile_site_key }}"></div>
                 </div>
             {% endif %}
         {% elseif provider == 'recaptcha_v2' %}
-            {% if config.publickey %}
+            {% if config.publickey|default('') %}
                 <div class="mb-3">
                     <script src='https://www.google.com/recaptcha/api.js' async defer></script>
                     <div class="g-recaptcha" data-sitekey="{{ config.publickey }}"></div>
                 </div>
             {% endif %}
         {% elseif provider == 'recaptcha_v3' %}
-            {% if config.publickey %}
+            {% if config.publickey|default('') %}
                 <script src="https://www.google.com/recaptcha/api.js?render={{ config.publickey }}" async defer></script>
                 <input type="hidden" name="g-recaptcha-response" value="">
                 <input type="hidden" name="g-recaptcha-action" value="fossbilling_submit">
@@ -64,7 +64,7 @@
                 </script>
             {% endif %}
         {% elseif provider == 'hcaptcha' %}
-            {% if config.hcaptcha_site_key %}
+            {% if config.hcaptcha_site_key|default('') %}
                 <div class="mb-3">
                     <script src='https://js.hcaptcha.com/1/api.js' async defer></script>
                     <div class="h-captcha" data-sitekey="{{ config.hcaptcha_site_key }}"></div>

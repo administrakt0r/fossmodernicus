@@ -9,7 +9,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary);"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
             <div>
                 <strong>{{ 'You have'|trans }} {{ cart.items|length }} {{ 'item(s) in your shopping cart.'|trans }}</strong>
-                <span class="d-none d-sm-inline text-muted ms-1">({{ 'Total:'|trans }} {{ (cart.total * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }})</span>
+                <span class="d-none d-sm-inline text-muted ms-1">({{ 'Total:'|trans }} {{ (cart.total|default(0) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('EUR'))) }})</span>
             </div>
         </div>
         <div class="d-flex align-items-center gap-2">
@@ -79,10 +79,10 @@
                                 {% if product.type == 'domain' %}
                                     <div class="d-flex align-items-baseline gap-1">
                                         <span class="text-muted small">{{ 'From'|trans }}</span>
-                                        <span class="fs-2 fw-bold text-main">{{ (product.price_starting_from * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                                        <span class="fs-2 fw-bold text-main">{{ (product.price_starting_from|default(0) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('EUR'))) }}</span>
                                         <span class="text-muted small">/ {{ 'year'|trans }}</span>
                                     </div>
-                                {% elseif product.pricing.type == 'recurrent' %}
+                                {% elseif product.pricing.type|default('') == 'recurrent' %}
                                     {% set lowest_price = null %}
                                     {% set lowest_period = null %}
                                     {% for code in ['1M', '3M', '6M', '1Y', '2Y', '3Y'] %}
@@ -95,16 +95,16 @@
                                     {% endfor %}
                                     {% if lowest_price is not null %}
                                         <div class="d-flex align-items-baseline gap-1">
-                                            <span class="fs-2 fw-bold text-main">{{ (lowest_price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
-                                            <span class="text-muted small">/ {{ periods[lowest_period]|default('month')|lower }}</span>
+                                            <span class="fs-2 fw-bold text-main">{{ (lowest_price * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('EUR'))) }}</span>
+                                            <span class="text-muted small">/ {{ periods[lowest_period|default('')]|default(lowest_period|default('month'))|lower }}</span>
                                         </div>
                                     {% endif %}
-                                {% elseif product.pricing.type == 'once' %}
+                                {% elseif product.pricing.type|default('') == 'once' %}
                                     <div class="d-flex align-items-baseline gap-1">
-                                        <span class="fs-2 fw-bold text-main">{{ (product.pricing.once.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                                        <span class="fs-2 fw-bold text-main">{{ ((product.pricing.once.price|default(0)) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('EUR'))) }}</span>
                                         <span class="text-muted small">{{ 'One-time'|trans }}</span>
                                     </div>
-                                {% elseif product.pricing.type == 'free' %}
+                                {% elseif product.pricing.type|default('') == 'free' %}
                                     <div class="d-flex align-items-baseline gap-1">
                                         <span class="fs-2 fw-bold text-success">{{ 'Free'|trans }}</span>
                                     </div>
@@ -113,7 +113,7 @@
 
                             <div class="product-card-body p-4 d-flex flex-column flex-grow-1 justify-content-between">
                                 <div class="product-features mb-4">
-                                    {% if product.description %}
+                                    {% if product.description|default('') %}
                                         <div class="product-features-list small">
                                             {{ (product.description ?? '')|markdown_to_html }}
                                         </div>
@@ -140,7 +140,7 @@
     {% for cat in categories %}
         {% if cat.products|length > 0 %}
             <div class="tab-pane fade" id="pill-cat-{{ cat.id }}" role="tabpanel" aria-labelledby="pill-cat-{{ cat.id }}-tab">
-                {% if cat.description %}
+                {% if cat.description|default('') %}
                     <div class="mb-4 text-muted small">{{ (cat.description ?? '')|markdown_to_html }}</div>
                 {% endif %}
                 <div class="row g-4">
@@ -155,10 +155,10 @@
                                     {% if product.type == 'domain' %}
                                         <div class="d-flex align-items-baseline gap-1">
                                             <span class="text-muted small">{{ 'From'|trans }}</span>
-                                            <span class="fs-2 fw-bold text-main">{{ (product.price_starting_from * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                                            <span class="fs-2 fw-bold text-main">{{ (product.price_starting_from|default(0) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}</span>
                                             <span class="text-muted small">/ {{ 'year'|trans }}</span>
                                         </div>
-                                    {% elseif product.pricing.type == 'recurrent' %}
+                                    {% elseif product.pricing.type|default('') == 'recurrent' %}
                                         {% set lowest_price = null %}
                                         {% set lowest_period = null %}
                                         {% for code in ['1M', '3M', '6M', '1Y', '2Y', '3Y'] %}
@@ -171,16 +171,16 @@
                                         {% endfor %}
                                         {% if lowest_price is not null %}
                                             <div class="d-flex align-items-baseline gap-1">
-                                                <span class="fs-2 fw-bold text-main">{{ (lowest_price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
-                                                <span class="text-muted small">/ {{ periods[lowest_period]|default('month')|lower }}</span>
+                                                <span class="fs-2 fw-bold text-main">{{ (lowest_price * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}</span>
+                                                <span class="text-muted small">/ {{ periods[lowest_period|default('')]|default(lowest_period|default('month'))|lower }}</span>
                                             </div>
                                         {% endif %}
-                                    {% elseif product.pricing.type == 'once' %}
+                                    {% elseif product.pricing.type|default('') == 'once' %}
                                         <div class="d-flex align-items-baseline gap-1">
-                                            <span class="fs-2 fw-bold text-main">{{ (product.pricing.once.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}</span>
+                                            <span class="fs-2 fw-bold text-main">{{ ((product.pricing.once.price|default(0)) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('USD'))) }}</span>
                                             <span class="text-muted small">{{ 'One-time'|trans }}</span>
                                         </div>
-                                    {% elseif product.pricing.type == 'free' %}
+                                    {% elseif product.pricing.type|default('') == 'free' %}
                                         <div class="d-flex align-items-baseline gap-1">
                                             <span class="fs-2 fw-bold text-success">{{ 'Free'|trans }}</span>
                                         </div>
@@ -189,7 +189,7 @@
 
                                 <div class="product-card-body p-4 d-flex flex-column flex-grow-1 justify-content-between">
                                     <div class="product-features mb-4">
-                                        {% if product.description %}
+                                        {% if product.description|default('') %}
                                             <div class="product-features-list small">
                                                 {{ (product.description ?? '')|markdown_to_html }}
                                             </div>

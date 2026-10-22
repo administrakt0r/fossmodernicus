@@ -41,11 +41,11 @@
     <div class="theme-auth-box">
         <div class="theme-auth-logo text-center mb-4">
             <a href="{{ '/'|url }}" class="d-inline-block text-decoration-none">
-                {% if settings.custom_logo_url %}
+                {% if settings.custom_logo_url|default('') %}
                     <img src="{{ settings.custom_logo_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="44" style="height: 44px; width: auto; max-width: 100%;">
-                {% elseif guest.system_company.logo_url %}
+                {% elseif guest.system_company.logo_url|default('') %}
                     <img src="{{ guest.system_company.logo_url }}" alt="{{ guest.system_company.name|default('Client Portal') }}" width="160" height="44" style="height: 44px; width: auto; max-width: 100%;">
-                {% elseif company.logo_url %}
+                {% elseif company.logo_url|default('') %}
                     <img src="{{ company.logo_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="44" style="height: 44px; width: auto; max-width: 100%;">
                 {% else %}
                     <img src="{{ 'img/logo.svg'|asset_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="44" style="height: 44px; width: auto; max-width: 100%;">
@@ -78,9 +78,12 @@
 
 <script src="{{ 'js/theme.js'|asset_url }}"></script>
 
-{% if settings.custom_css %}
+{% if settings.custom_css|default('') %}
     <style>{{ settings.custom_css|raw }}</style>
 {% endif %}
+
+{{ include('partial_pending_messages.html.twig', ignore_missing: true) }}
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;"></div>
 
 {{ render_widgets('client.theme.body.end') }}
 </body>

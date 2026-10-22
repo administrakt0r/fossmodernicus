@@ -56,7 +56,7 @@
                                     <div class="fw-semibold">{{ order.title }}</div>
                                 </td>
                                 <td class="fw-medium">
-                                    {{ order.total|format_currency(order.currency ?? default_currency) }}
+                                    {{ order.total|format_currency(order.currency|default(default_currency|default('USD'))) }}
                                 </td>
                                 <td class="text-muted small">
                                     {{ order.period ? order.period|period_title : '-' }}

@@ -5,6 +5,87 @@
 (function () {
   'use strict';
 
+  // 0. Ensure FOSSBilling message and UI notification bridge is globally defined
+  window.FOSSBilling = window.FOSSBilling || {};
+
+  function restoreSubmitButtons() {
+    document.querySelectorAll('button[data-loading-active="true"]').forEach(function (btn) {
+      delete btn.dataset.loadingActive;
+      btn.disabled = false;
+      if (btn.dataset.origHtml) {
+        btn.innerHTML = btn.dataset.origHtml;
+      }
+    });
+  }
+
+  window.FOSSBilling.message = function (message, type) {
+    let alertType = type || 'info';
+    if (alertType === 'error') alertType = 'danger';
+    if (alertType === 'notice') alertType = 'info';
+
+    // On error or danger, restore submit buttons immediately
+    if (alertType === 'danger') {
+      restoreSubmitButtons();
+      if (typeof window.onOrderCheckoutError === 'function') {
+        window.onOrderCheckoutError();
+      }
+    } else {
+      setTimeout(restoreSubmitButtons, 600);
+    }
+
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+      container.style.zIndex = '1090';
+      document.body.appendChild(container);
+    }
+
+    const toastEl = document.createElement('div');
+    toastEl.className = 'toast align-items-center text-white border-0 bg-' + alertType + ' show shadow mb-2';
+    toastEl.setAttribute('role', 'alert');
+    toastEl.setAttribute('aria-live', 'assertive');
+    toastEl.setAttribute('aria-atomic', 'true');
+
+    const iconSvg = alertType === 'success'
+      ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-2 flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>'
+      : (alertType === 'danger'
+        ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-2 flex-shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-2 flex-shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>');
+
+    toastEl.innerHTML =
+      '<div class="d-flex p-2 align-items-center">' +
+        iconSvg +
+        '<div class="toast-body fw-medium py-1 px-1 flex-grow-1">' +
+          message +
+        '</div>' +
+        '<button type="button" class="btn-close btn-close-white ms-2 me-1" data-bs-dismiss="toast" aria-label="Close"></button>' +
+      '</div>';
+
+    const closeBtn = toastEl.querySelector('.btn-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function () {
+        toastEl.classList.remove('show');
+        setTimeout(function () { toastEl.remove(); }, 300);
+      });
+    }
+
+    container.appendChild(toastEl);
+
+    setTimeout(function () {
+      if (toastEl.parentNode) {
+        toastEl.classList.remove('show');
+        setTimeout(function () { toastEl.remove(); }, 400);
+      }
+    }, 5000);
+  };
+
+  window.FOSSBilling.ui = Object.assign(window.FOSSBilling.ui || {}, {
+    notify: function (message, type) {
+      window.FOSSBilling.message(message, type || 'info');
+    }
+  });
+
   // 1. Color Theme Mode (Light / Dark)
   const THEME_KEY = 'fossmodernicus_theme_mode';
 
@@ -112,5 +193,24 @@
         new bootstrap.Tooltip(el);
       });
     }
+
+    // 8. Visual loading state on form submissions
+    document.addEventListener('submit', function (e) {
+      const form = e.target;
+      if (!form || !form.matches) return;
+      const submitBtn = form.querySelector('button[type="submit"]:not([disabled])') ||
+                        (form.id ? document.querySelector('button[type="submit"][form="' + form.id + '"]:not([disabled])') : null);
+      if (submitBtn) {
+        submitBtn.dataset.origHtml = submitBtn.innerHTML;
+        submitBtn.dataset.loadingActive = 'true';
+        const text = submitBtn.innerText.trim();
+        let loadingText = 'Processing...';
+        if (/save/i.test(text)) loadingText = 'Saving...';
+        else if (/checkout|pay|complete order/i.test(text)) loadingText = 'Placing Order...';
+        else if (/update/i.test(text)) loadingText = 'Updating...';
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span><span>' + loadingText + '</span>';
+      }
+    }, true);
   });
 })();

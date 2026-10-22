@@ -16,3 +16,8 @@ Thumbs.db
 # Build and distribution archives
 dist/
 *.zip
+
+
+AGENTARDS/
+.agentards/
+*_LOG.md
