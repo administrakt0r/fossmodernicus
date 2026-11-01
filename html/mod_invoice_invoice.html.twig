@@ -58,11 +58,11 @@
                 <p class="text-muted small mb-3">{{ 'Select your preferred payment gateway to settle this invoice.'|trans }}</p>
                 <div class="d-flex flex-wrap gap-3">
                     {% for gtw in guest.invoice_gateways %}
-                        {% if invoice.currency in gtw.accepted_currencies and (gtw.allow_single or (invoice.subscribable and gtw.allow_recurrent)) %}
+                        {% if invoice.currency|default('') in gtw.accepted_currencies|default([]) and (gtw.allow_single|default(false) or (invoice.subscribable|default(false) and gtw.allow_recurrent|default(false))) %}
                             <div class="p-2 border rounded-3 bg-surface hover-shadow cursor-pointer text-center" style="min-width: 140px;"
-                                 onclick="paymentPrompt('{{ gtw.id }}', {{ gtw.allow_recurrent ? 'true' : 'false' }}, {{ gtw.allow_single ? 'true' : 'false' }}, `{{ gtw.title }}`)">
-                                {% if gtw.logo.logo %}
-                                    <img src="{{ gtw.logo.logo }}" alt="{{ gtw.title }}" style="max-height: 40px; max-width: 120px;" class="mb-1" />
+                                 onclick="paymentPrompt('{{ gtw.id }}', {{ gtw.allow_recurrent|default(false) ? 'true' : 'false' }}, {{ gtw.allow_single|default(false) ? 'true' : 'false' }}, `{{ gtw.title }}`)">
+                                {% if gtw.logo.logo|default(null) %}
+                                    <img src="{{ gtw.logo.logo }}" alt="{{ gtw.title }}" width="120" height="40" loading="lazy" decoding="async" style="max-height: 40px; max-width: 120px;" class="mb-1" />
                                 {% else %}
                                     <div class="fw-semibold py-2">{{ gtw.title }}</div>
                                 {% endif %}
@@ -82,22 +82,22 @@
             <div class="row g-4 mb-4">
                 <div class="col-sm-6">
                     <span class="text-uppercase text-muted fs-8 fw-bold">{{ 'Payable To'|trans }}</span>
-                    <h4 class="fw-bold mt-1 mb-1">{{ seller.company|default(company.name) }}</h4>
+                    <h4 class="fw-bold mt-1 mb-1">{{ seller.company|default(company.name|default('Billing Department')) }}</h4>
                     <div class="text-muted small">
-                        {% if seller.address %}{{ seller.address }}<br>{% endif %}
-                        {% if seller.company_vat %}{{ 'VAT'|trans }}: {{ seller.company_vat }}<br>{% endif %}
-                        {% if seller.phone %}{{ 'Phone'|trans }}: {{ seller.phone }}<br>{% endif %}
-                        {% if seller.email %}{{ seller.email }}{% endif %}
+                        {% if seller.address|default('') %}{{ seller.address }}<br>{% endif %}
+                        {% if seller.company_vat|default('') %}{{ 'VAT'|trans }}: {{ seller.company_vat }}<br>{% endif %}
+                        {% if seller.phone|default('') %}{{ 'Phone'|trans }}: {{ seller.phone }}<br>{% endif %}
+                        {% if seller.email|default('') %}{{ seller.email }}{% endif %}
                     </div>
                 </div>
                 <div class="col-sm-6 text-sm-end">
                     <span class="text-uppercase text-muted fs-8 fw-bold">{{ 'Billed To'|trans }}</span>
-                    <h4 class="fw-bold mt-1 mb-1">{{ buyer.first_name }} {{ buyer.last_name }}</h4>
+                    <h4 class="fw-bold mt-1 mb-1">{{ buyer.first_name|default('') }} {{ buyer.last_name|default('') }}</h4>
                     <div class="text-muted small">
-                        {% if buyer.company %}{{ buyer.company }}<br>{% endif %}
-                        {% if buyer.address %}{{ buyer.address }}<br>{% endif %}
-                        {% if buyer.city or buyer.country %}{{ buyer.city }}{% if buyer.city and buyer.country %}, {% endif %}{{ buyer.country }}<br>{% endif %}
-                        {{ buyer.email }}
+                        {% if buyer.company|default('') %}{{ buyer.company }}<br>{% endif %}
+                        {% if buyer.address|default('') %}{{ buyer.address }}<br>{% endif %}
+                        {% if buyer.city|default('') or buyer.country|default('') %}{{ buyer.city|default('') }}{% if buyer.city|default('') and buyer.country|default('') %}, {% endif %}{{ buyer.country|default('') }}<br>{% endif %}
+                        {{ buyer.email|default('') }}
                     </div>
                 </div>
             </div>
@@ -117,7 +117,7 @@
                 </div>
                 <div class="col-6 col-md-3 text-md-end">
                     <span class="text-muted small d-block">{{ 'Total Due'|trans }}</span>
-                    <span class="h4 fw-bold mb-0 text-primary">{{ invoice.total|format_currency(invoice.currency ?? default_currency) }}</span>
+                    <span class="h4 fw-bold mb-0 text-primary">{{ invoice.total|format_currency(invoice.currency|default(default_currency|default('USD'))) }}</span>
                 </div>
             </div>
 
@@ -136,16 +136,16 @@
                         <tr>
                             <td>
                                 <div class="fw-medium">
-                                    {% if item.order_id %}
+                                    {% if item.order_id|default(null) %}
                                         <a href="{{ ('order/service/manage/' ~ item.order_id)|url }}">{{ item.title }}</a>
                                     {% else %}
                                         {{ item.title }}
                                     {% endif %}
                                 </div>
                             </td>
-                            <td class="text-center text-muted">{{ item.quantity }}</td>
-                            <td class="text-end text-muted">{{ item.price|format_currency(invoice.currency ?? default_currency) }}</td>
-                            <td class="text-end fw-semibold">{{ item.total|format_currency(invoice.currency ?? default_currency) }}</td>
+                            <td class="text-center text-muted">{{ item.quantity|default(1) }}</td>
+                            <td class="text-end text-muted">{{ item.price|format_currency(invoice.currency|default(default_currency|default('USD'))) }}</td>
+                            <td class="text-end fw-semibold">{{ item.total|format_currency(invoice.currency|default(default_currency|default('USD'))) }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -155,27 +155,27 @@
             <div class="row justify-content-end">
                 <div class="col-md-5">
                     <table class="table table-borderless table-sm">
-                        {% if invoice.tax > 0 %}
+                        {% if invoice.tax|default(0) > 0 %}
                             <tr>
-                                <td class="text-muted">{{ invoice.taxname }} ({{ invoice.taxrate }}%)</td>
-                                <td class="text-end fw-medium">{{ invoice.tax|format_currency(invoice.currency ?? default_currency) }}</td>
+                                <td class="text-muted">{{ invoice.taxname|default('Tax'|trans) }} ({{ invoice.taxrate|default(0) }}%)</td>
+                                <td class="text-end fw-medium">{{ invoice.tax|format_currency(invoice.currency|default(default_currency|default('USD'))) }}</td>
                             </tr>
                         {% endif %}
                         {% if invoice.discount|default(0) > 0 %}
                             <tr>
                                 <td class="text-muted">{{ 'Discount'|trans }}</td>
-                                <td class="text-end text-success fw-medium">-{{ invoice.discount|format_currency(invoice.currency ?? default_currency) }}</td>
+                                <td class="text-end text-success fw-medium">-{{ invoice.discount|format_currency(invoice.currency|default(default_currency|default('USD'))) }}</td>
                             </tr>
                         {% endif %}
                         <tr class="border-top">
                             <td class="h5 fw-bold pt-3">{{ 'Total'|trans }}</td>
-                            <td class="h5 fw-bold text-end pt-3 text-primary">{{ invoice.total|format_currency(invoice.currency ?? default_currency) }}</td>
+                            <td class="h5 fw-bold text-end pt-3 text-primary">{{ invoice.total|format_currency(invoice.currency|default(default_currency|default('USD'))) }}</td>
                         </tr>
                     </table>
                 </div>
             </div>
 
-            {% if invoice.text_2 %}
+            {% if invoice.text_2|default('') %}
                 <div class="p-3 bg-surface border rounded-3 mt-4">
                     <div class="small text-muted mb-1 fw-bold">{{ 'Notes & Terms'|trans }}</div>
                     <div class="small">{{ invoice.text_2|markdown_to_html }}</div>

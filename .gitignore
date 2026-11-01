@@ -1,8 +1,14 @@
 # Local Environment & Logs
 .env
+.env.*
 *.log
 .docker/
 data/cache/
+tmp/
+temp/
+scratch/
+*.tmp
+*.bak
 
 # OS and Editor files
 .DS_Store
@@ -12,7 +18,30 @@ Thumbs.db
 *.swp
 *~
 
-# Node / Build tools
 # Build and distribution archives
 dist/
 *.zip
+releases/
+
+# AI Agent Context, Rules & Local Tooling
+AGENTARDS/
+.agentards/
+.impeccable/
+AGENTS.md
+DESIGN.md
+PRODUCT.md
+TODOIST.md
+SPECKITINIT.md
+*_LOG.md
+.gemini/
+.claude/
+CLAUDE.md
+CURSOR.md
+.cursorrules
+.cursor/
+.windsurfrules
+.windsurf/
+copilot-instructions.md
+prompts/
+.agents/
+.ai/

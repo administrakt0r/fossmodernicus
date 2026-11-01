@@ -11,6 +11,30 @@
     <meta name="generator" content="FOSSBilling">
     <meta name="robots" content="{{ settings.meta_robots|default('index, follow') }}">
 
+    <script>
+        (function() {
+            try {
+                var m = localStorage.getItem('fossmodernicus_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', m);
+            } catch(e) {}
+        })();
+    </script>
+    <script type="speculationrules">
+    {
+      "prefetch": [
+        {
+          "where": {
+            "and": [
+              { "href_matches": "/*" },
+              { "not": { "href_matches": ["/client/logout*", "/order/checkout*", "/api/*", "*?*"] } }
+            ]
+          },
+          "eagerness": "moderate"
+        }
+      ]
+    }
+    </script>
+
     {% if guest.system_company.favicon_url %}
         <link rel="shortcut icon" href="{{ guest.system_company.favicon_url }}">
     {% else %}
@@ -71,11 +95,11 @@
 
 <script src="{{ 'js/theme.js'|asset_url }}"></script>
 
-{% if settings.custom_css %}
+{% if settings.custom_css|default('') %}
     <style>{{ settings.custom_css|raw }}</style>
 {% endif %}
 
-{% if settings.custom_js %}
+{% if settings.custom_js|default('') %}
     <script>{{ settings.custom_js|raw }}</script>
 {% endif %}
 
@@ -83,6 +107,10 @@
 {% if guest.extension_is_on({ "mod": "cookieconsent" }) %}
     {{ include('mod_cookieconsent_index.html.twig', ignore_missing: true) }}
 {% endif %}
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;"></div>
+
+{% block js %}{% endblock %}
 
 {{ render_widgets('client.theme.body.end') }}
 {{ debug_bar_render() }}

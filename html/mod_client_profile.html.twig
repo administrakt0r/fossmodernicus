@@ -48,7 +48,7 @@
 
     <!-- Personal Details Tab -->
     <div id="tab-details" class="theme-card-body profile-tab-pane">
-        <form method="post" action="{{ 'client/profile/update'|api_url }}" id="profile-update" {{ fb_api_form({message: 'Profile Updated'|trans}) }}>
+        <form method="post" action="{{ 'profile/update'|api_url }}" id="profile-update" {{ fb_api_form({message: 'Profile Updated'|trans}) }}>
             <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
             <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded" style="background: var(--bg-subtle);">
                 <div class="theme-avatar" style="width: 54px; height: 54px; font-size: 1.25rem;">
@@ -117,7 +117,7 @@
         <h3 class="theme-card-title mb-2">{{ 'Change Password'|trans }}</h3>
         <p class="text-muted mb-4">{{ 'Ensure your account stays secure by using a strong password.'|trans }}</p>
 
-        <form method="post" action="{{ 'client/profile/change_password'|api_url }}" {{ fb_api_form({message: 'Password Updated Successfully'|trans}) }} style="max-width: 480px;">
+        <form method="post" action="{{ 'profile/change_password'|api_url }}" {{ fb_api_form({message: 'Password Updated Successfully'|trans}) }} style="max-width: 480px;">
             <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
             <div class="theme-form-group">
                 <label class="theme-form-label" for="current_password">{{ 'Current Password'|trans }}</label>
@@ -130,7 +130,7 @@
             </div>
             <div class="theme-form-group">
                 <label class="theme-form-label" for="password_confirm">{{ 'Confirm New Password'|trans }}</label>
-                <input type="password" class="theme-input" name="password_confirm" id="password_confirm" required minlength="8">
+                <input type="password" class="theme-input" name="confirm_password" id="password_confirm" required minlength="8">
             </div>
 
             <div class="mt-4 pt-3 border-top border-subtle">
@@ -144,24 +144,19 @@
     <!-- Currency Tab -->
     <div id="tab-currency" class="theme-card-body profile-tab-pane d-none">
         <h3 class="theme-card-title mb-2">{{ 'Billing Currency'|trans }}</h3>
-        <p class="text-muted mb-4">{{ 'Choose your preferred currency for invoices and orders.'|trans }}</p>
+        <p class="text-muted mb-4">{{ 'Your profile currency is defined after your first order. Once your currency is set, all your profile accounting will be managed in that currency and cannot be changed.'|trans }}</p>
 
-        <form method="post" action="{{ 'client/profile/currency_update'|api_url }}" {{ fb_api_form({message: 'Currency Updated'|trans, reload: true}) }} style="max-width: 480px;">
-            <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
-            <div class="theme-form-group">
-                <label class="theme-form-label" for="currency">{{ 'Selected Currency'|trans }}</label>
-                <select name="currency" id="currency" class="theme-select">
-                    {% for cur in guest.currency_get_pairs %}
-                        <option value="{{ cur.code }}" {% if cur.code == profile.currency %}selected{% endif %}>{{ cur.code }} - {{ cur.title }}</option>
-                    {% endfor %}
-                </select>
+        {% if profile.currency %}
+            <div class="p-3 rounded mb-3" style="background: var(--bg-subtle);">
+                <span class="text-muted text-sm d-block mb-1">{{ 'Active Profile Currency'|trans }}</span>
+                <span class="fs-5 fw-bold">{{ profile.currency|currency_name }} ({{ profile.currency }})</span>
             </div>
-            <div class="mt-4 pt-3 border-top border-subtle">
-                <button type="submit" class="theme-btn theme-btn-primary">
-                    <span>{{ 'Update Currency'|trans }}</span>
-                </button>
+            <p class="text-muted text-sm">{{ 'You will need to create a new client profile to use an alternative currency.'|trans }}</p>
+        {% else %}
+            <div class="theme-alert theme-alert-info" role="alert">
+                {{ 'You do not yet have a currency associated with your profile. You can select the correct one when making your first order.'|trans }}
             </div>
-        </form>
+        {% endif %}
     </div>
 
     <!-- API Key Tab -->
@@ -169,20 +164,18 @@
         <h3 class="theme-card-title mb-2">{{ 'API Key Management'|trans }}</h3>
         <p class="text-muted mb-4">{{ 'Your API key allows programmatic access to your account services.'|trans }}</p>
 
-        <div class="p-3 rounded mb-3" style="background: var(--bg-subtle);">
-            <label class="theme-form-label" for="api_key_field">{{ 'Your API Key'|trans }}</label>
-            <input type="text" class="theme-input font-monospace" id="api_key_field" value="{{ profile.api_key }}" readonly>
-        </div>
+        <form method="post" action="{{ 'profile/api_key_reset'|api_url }}" id="change-api-key" {{ fb_api_form({message: 'API Key Changed'|trans, reload: true}) }} style="max-width: 480px;">
+            <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
+            <div class="theme-form-group mb-3">
+                <label class="theme-form-label" for="api_key_field">{{ 'Your API Key'|trans }}</label>
+                <input type="text" class="theme-input font-monospace" id="api_key_field" value="{{ client.profile_api_key_get }}" readonly>
+            </div>
 
-        <a href="{{ 'client/profile/api_key_reset'|api_url }}" class="theme-btn theme-btn-secondary"
-           {{ fb_api_link({
-               modal: { type: 'confirm', title: 'Reset API Key?'|trans },
-               reload: true,
-               message: 'API Key Regenerated'|trans
-           }) }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
-            <span>{{ 'Generate New API Key'|trans }}</span>
-        </a>
+            <button type="submit" class="theme-btn theme-btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+                <span>{{ 'Generate New API Key'|trans }}</span>
+            </button>
+        </form>
     </div>
 </div>
 

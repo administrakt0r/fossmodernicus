@@ -1,0 +1,81 @@
+{% extends request.ajax ? "layout_blank.html.twig" : "layout_default.html.twig" %}
+{% set active_menu = 'kb' %}
+
+{% block meta_title %}{{ 'Knowledge Base'|trans }}{% endblock %}
+{% block meta_description %}{{ 'Browse help articles, tutorials, and answers to common questions in our knowledge base.'|trans }}{% endblock %}
+
+{% block breadcrumb_item %}{{ 'Knowledge Base'|trans }}{% endblock %}
+
+{% block content %}
+    <!-- Knowledge Base Hero -->
+    <div class="kb-hero-card mb-4">
+        <span class="badge bg-primary-lt fw-semibold mb-2">{{ 'Help Center & Documentation'|trans }}</span>
+        <h1 class="display-6 fw-bold text-main mb-2">{{ 'How can we help you today?'|trans }}</h1>
+        <p class="text-muted small mb-0" style="max-width: 600px; margin: 0 auto;">{{ 'Explore our comprehensive knowledge base categories, guides, and tutorials.'|trans }}</p>
+        <div class="kb-search-box">
+            <form method="get" action="{{ 'support/kb'|url }}" class="w-100">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text bg-surface border-subtle text-muted">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </span>
+                    <input type="text" name="q" class="form-control" value="{{ request.q|default('') }}" placeholder="{{ 'Search articles, tutorials, guides...'|trans }}" aria-label="{{ 'Search articles'|trans }}">
+                    <button class="theme-btn theme-btn-primary px-4 fw-semibold" type="submit">{{ 'Search'|trans }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Categories Grid -->
+    {% set kb_categories = guest.support_kb_category_get_list({ "status": "active" }).list|default([]) %}
+    <div class="row g-4 mb-4">
+        {% for category in kb_categories %}
+            <div class="col-12 col-md-6 col-lg-4 d-flex">
+                <div class="kb-category-card w-100 p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="theme-stat-icon primary" style="width: 44px; height: 44px; border-radius: var(--radius-md);">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        </div>
+                        <span class="badge bg-secondary-lt fw-medium">{{ category.articles|length }} {{ 'articles'|trans }}</span>
+                    </div>
+                    <h2 class="h5 fw-bold text-main mb-2">
+                        <a href="{{ ('support/kb/' ~ category.slug)|url }}" class="text-decoration-none text-main">{{ category.title }}</a>
+                    </h2>
+                    <p class="text-muted small mb-3">{{ category.description|default('Browse articles in this section.'|trans) }}</p>
+
+                    {% if category.articles|length > 0 %}
+                        <div class="pt-3 border-top border-subtle mt-auto mb-3">
+                            {% for article in category.articles|slice(0, 3) %}
+                                <a href="{{ ('support/kb/' ~ category.slug ~ '/' ~ article.slug)|url }}" class="kb-article-item">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted flex-shrink-0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    <span class="text-truncate">{{ article.title }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-auto pt-2">
+                        <a href="{{ ('support/kb/' ~ category.slug)|url }}" class="theme-btn theme-btn-outline w-100 justify-content-center theme-btn-sm">
+                            <span>{{ 'View All Articles'|trans }}</span>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ms-1"><polyline points="9 18 15 12 9 6"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="theme-card p-5 text-center text-muted">
+                    {% if request.q|default('') %}
+                        <h3 class="h5 fw-bold mb-2">{{ 'No results found'|trans }}</h3>
+                        <p class="mb-3">{{ 'No articles or categories matched your search for:'|trans }} <strong>{{ request.q }}</strong></p>
+                        <div class="d-flex flex-wrap justify-content-center gap-2">
+                            <a class="theme-btn theme-btn-primary theme-btn-sm" href="{{ 'support'|url }}">{{ 'Contact Support'|trans }}</a>
+                            <a class="theme-btn theme-btn-secondary theme-btn-sm" href="{{ 'support/kb'|url }}">{{ 'Browse All Categories'|trans }}</a>
+                        </div>
+                    {% else %}
+                        <p class="mb-0">{{ 'No knowledge base categories are available yet.'|trans }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

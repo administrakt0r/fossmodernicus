@@ -10,6 +10,30 @@
     <meta name="csrf-token" content="{{ CSRFToken }}">
     <meta name="robots" content="{{ settings.meta_robots|default('index, follow') }}">
 
+    <script>
+        (function() {
+            try {
+                var m = localStorage.getItem('fossmodernicus_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', m);
+            } catch(e) {}
+        })();
+    </script>
+    <script type="speculationrules">
+    {
+      "prefetch": [
+        {
+          "where": {
+            "and": [
+              { "href_matches": "/*" },
+              { "not": { "href_matches": ["/client/logout*", "/order/checkout*", "/api/*", "*?*"] } }
+            ]
+          },
+          "eagerness": "moderate"
+        }
+      ]
+    }
+    </script>
+
     {% if guest.system_company.favicon_url %}
         <link rel="shortcut icon" href="{{ guest.system_company.favicon_url }}">
     {% else %}
@@ -41,15 +65,10 @@
     <div class="theme-auth-box">
         <div class="theme-auth-logo text-center mb-4">
             <a href="{{ '/'|url }}" class="d-inline-block text-decoration-none">
-                {% if settings.custom_logo_url %}
-                    <img src="{{ settings.custom_logo_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="44" style="height: 44px; width: auto; max-width: 100%;">
-                {% elseif guest.system_company.logo_url %}
-                    <img src="{{ guest.system_company.logo_url }}" alt="{{ guest.system_company.name|default('Client Portal') }}" width="160" height="44" style="height: 44px; width: auto; max-width: 100%;">
-                {% elseif company.logo_url %}
-                    <img src="{{ company.logo_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="44" style="height: 44px; width: auto; max-width: 100%;">
-                {% else %}
-                    <img src="{{ 'img/logo.svg'|asset_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="44" style="height: 44px; width: auto; max-width: 100%;">
-                {% endif %}
+                {% set light_logo = settings.custom_logo_url|default(guest.system_company.logo_url|default(company.logo_url|default('img/logo.svg'|asset_url))) %}
+                {% set dark_logo = settings.custom_logo_dark_url|default('img/logo-dark.svg'|asset_url) %}
+                <img src="{{ light_logo }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="44" class="theme-brand-logo theme-logo-light" style="height: 44px; width: auto; max-width: 100%;" fetchpriority="high" decoding="async">
+                <img src="{{ dark_logo }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="44" class="theme-brand-logo theme-logo-dark" style="height: 44px; width: auto; max-width: 100%;" fetchpriority="high" decoding="async">
             </a>
         </div>
 
@@ -65,7 +84,7 @@
                 &copy; {{ 'now'|date('Y') }} {{ company.signature|default(company.name|default('Client Portal')) }}. {{ 'All rights reserved.'|trans }}
             </div>
             <div class="mt-1">
-                {{ 'Theme'|trans }} <span class="fw-medium">FossModernicus</span> {{ 'by'|trans }} <a href="https://wpineu.com" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-underline">WPinEU.com</a>
+                {{ 'Theme'|trans }} <span class="fw-medium">FossModernicus</span> {{ 'by'|trans }} <a href="https://administraktor.com" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-underline">administraktor.com</a>
             </div>
         </div>
     </div>
@@ -78,9 +97,14 @@
 
 <script src="{{ 'js/theme.js'|asset_url }}"></script>
 
-{% if settings.custom_css %}
+{% if settings.custom_css|default('') %}
     <style>{{ settings.custom_css|raw }}</style>
 {% endif %}
+
+{{ include('partial_pending_messages.html.twig', ignore_missing: true) }}
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;"></div>
+
+{% block js %}{% endblock %}
 
 {{ render_widgets('client.theme.body.end') }}
 </body>

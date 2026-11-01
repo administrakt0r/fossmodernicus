@@ -82,7 +82,7 @@
                             </tr>
                             <tr>
                                 <td class="text-muted">{{ 'Recurring Amount'|trans }}</td>
-                                <td class="fw-bold text-primary">{{ order.total|format_currency(order.currency ?? default_currency) }}</td>
+                                <td class="fw-bold text-primary">{{ order.total|format_currency(order.currency|default(default_currency|default('USD'))) }}</td>
                             </tr>
                             {% if order.period %}
                                 <tr>
@@ -114,7 +114,7 @@
                     <h3 class="card-title h5 mb-0 fw-bold">{{ 'Service Notes'|trans }}</h3>
                 </div>
                 <div class="card-body p-4">
-                    {% if order.notes %}
+                    {% if order.notes|default('') %}
                         <div class="small">
                             {{ order.notes|markdown_to_html }}
                         </div>
@@ -140,7 +140,7 @@
     {{ render_widgets('client.order.manage.service.after', { 'order': order, 'service': service }) }}
 
     {# Addons Table if exists #}
-    {% if order.group_master == 1 and addons|length > 0 %}
+    {% if order.group_master|default(0) == 1 and addons|length > 0 %}
         <div class="card theme-card border-0 shadow-sm mb-4">
             <div class="card-header bg-transparent border-bottom p-3">
                 <h3 class="card-title h5 mb-0 fw-bold">{{ 'Associated Addons'|trans }}</h3>
@@ -161,7 +161,7 @@
                         {% for addon in addons %}
                             <tr>
                                 <td class="fw-semibold">{{ addon.title }}</td>
-                                <td>{{ addon.total|format_currency(addon.currency ?? default_currency) }}</td>
+                                <td>{{ addon.total|format_currency(addon.currency|default(default_currency|default('USD'))) }}</td>
                                 <td class="text-muted small">{{ addon.period ? addon.period|period_title : '-' }}</td>
                                 <td class="text-muted small">{{ addon.expires_at ? addon.expires_at|format_date : '-' }}</td>
                                 <td>{{ mf.status_badge(addon.status, 'order') }}</td>
@@ -259,14 +259,14 @@
                     <h5 class="modal-title fw-bold" id="orderTicketModalLabel">{{ 'Inquire About This Service'|trans }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'Close'|trans }}"></button>
                 </div>
-                <form id="open-ticket-form">
+                <form id="open-ticket-form" method="post" action="{{ 'support/ticket_create'|api_url }}">
                     <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                     <input type="hidden" name="rel_type" value="order">
                     <input type="hidden" name="rel_id" value="{{ order.id }}">
                     <div class="modal-body p-4">
                         <div class="mb-3">
                             <label class="form-label fw-semibold">{{ 'Department'|trans }}</label>
-                            {{ mf.selectbox('support_helpdesk_id', client.support_helpdesk_get_pairs, request.support_helpdesk_id, 1) }}
+                            {{ mf.selectbox('support_helpdesk_id', client.support_helpdesk_get_pairs, request.support_helpdesk_id|default(''), 1) }}
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">{{ 'Subject'|trans }}</label>

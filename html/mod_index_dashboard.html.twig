@@ -7,7 +7,10 @@
     {{ render_widgets('client.index.dashboard.content.before') }}
 
     {% if client %}
-        {{ render_widgets('client.index.dashboard.client.before') }}
+        {% set dashboard = client.index_get_dashboard %}
+        {% set profile = dashboard.profile %}
+        {% set recent_invoices = client.invoice_get_list({ "per_page": 5 }).list|default([]) %}
+        {{ render_widgets('client.index.dashboard.client.before', { 'dashboard': dashboard, 'profile': profile }) }}
 
         <!-- Welcome Banner -->
         <div class="theme-card mb-4" style="border-left: 4px solid var(--primary);">
@@ -85,7 +88,7 @@
                 </div>
                 <div class="theme-stat-content">
                     <div class="theme-stat-label">{{ 'Account Balance'|trans }}</div>
-                    <div class="theme-stat-value" style="color: var(--color-success);">{{ profile.balance | format_currency(profile.currency ?? default_currency) }}</div>
+                    <div class="theme-stat-value" style="color: var(--color-success);">{{ profile.balance|default(0) | format_currency(profile.currency|default(default_currency|default('USD'))) }}</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
                         <a href="{{ 'client/balance'|url }}">{{ 'Add funds'|trans }} &rarr;</a>
                     </div>
@@ -104,7 +107,7 @@
                         <a href="{{ 'order/service'|url }}" class="theme-btn theme-btn-secondary theme-btn-sm">{{ 'View All'|trans }}</a>
                     </div>
                     <div class="theme-card-body p-0 flex-grow-1">
-                        {% if dashboard.recent_orders and dashboard.recent_orders|length > 0 %}
+                        {% if dashboard.recent_orders is defined and dashboard.recent_orders|length > 0 %}
                             <div class="table-responsive">
                                 <table class="theme-table mb-0">
                                     <thead>
@@ -118,7 +121,7 @@
                                         {% for order in dashboard.recent_orders %}
                                             <tr>
                                                 <td>
-                                                    <a href="{{ 'order/service/manage/' ~ order.id|url }}" style="font-weight: 600;">
+                                                    <a href="{{ ('order/service/manage/' ~ order.id)|url }}" style="font-weight: 600;">
                                                         {{ order.title }}
                                                     </a>
                                                     <div style="font-size: 0.75rem; color: var(--text-muted);">#{{ order.id }}</div>
@@ -154,7 +157,7 @@
                         <a href="{{ 'invoice'|url }}" class="theme-btn theme-btn-secondary theme-btn-sm">{{ 'View All'|trans }}</a>
                     </div>
                     <div class="theme-card-body p-0 flex-grow-1">
-                        {% if dashboard.recent_invoices and dashboard.recent_invoices|length > 0 %}
+                        {% if recent_invoices is defined and recent_invoices|length > 0 %}
                             <div class="table-responsive">
                                 <table class="theme-table mb-0">
                                     <thead>
@@ -166,16 +169,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for invoice in dashboard.recent_invoices %}
+                                        {% for invoice in recent_invoices %}
                                             <tr>
                                                 <td>
-                                                    <a href="{{ 'invoice/' ~ invoice.hash|url }}" style="font-weight: 600;">
+                                                    <a href="{{ ('invoice/' ~ invoice.hash)|url }}" style="font-weight: 600;">
                                                         #{{ invoice.serie_nr|default(invoice.id) }}
                                                     </a>
                                                     <div style="font-size: 0.75rem; color: var(--text-muted);">{{ invoice.created_at|format_date }}</div>
                                                 </td>
                                                 <td style="font-weight: 600;">
-                                                    {{ invoice.total | format_currency(invoice.currency ?? default_currency) }}
+                                                    {{ invoice.total | format_currency(invoice.currency|default(default_currency|default('USD'))) }}
                                                 </td>
                                                 <td>
                                                     <span class="theme-badge theme-badge-{{ invoice.status == 'paid' ? 'success' : (invoice.status == 'unpaid' ? 'warning' : 'secondary') }}">
@@ -184,9 +187,9 @@
                                                 </td>
                                                 <td class="text-end">
                                                     {% if invoice.status == 'unpaid' %}
-                                                        <a href="{{ 'invoice/' ~ invoice.hash|url }}" class="theme-btn theme-btn-primary theme-btn-sm">{{ 'Pay Now'|trans }}</a>
+                                                        <a href="{{ ('invoice/' ~ invoice.hash)|url }}" class="theme-btn theme-btn-primary theme-btn-sm">{{ 'Pay Now'|trans }}</a>
                                                     {% else %}
-                                                        <a href="{{ 'invoice/' ~ invoice.hash|url }}" class="theme-btn theme-btn-outline theme-btn-sm">{{ 'View'|trans }}</a>
+                                                        <a href="{{ ('invoice/' ~ invoice.hash)|url }}" class="theme-btn theme-btn-outline theme-btn-sm">{{ 'View'|trans }}</a>
                                                     {% endif %}
                                                 </td>
                                             </tr>
@@ -211,7 +214,7 @@
                 <a href="{{ 'support'|url }}" class="theme-btn theme-btn-secondary theme-btn-sm">{{ 'All Tickets'|trans }}</a>
             </div>
             <div class="theme-card-body p-0">
-                {% if dashboard.recent_tickets and dashboard.recent_tickets|length > 0 %}
+                {% if dashboard.recent_tickets is defined and dashboard.recent_tickets|length > 0 %}
                     <div class="table-responsive">
                         <table class="theme-table mb-0">
                             <thead>
@@ -226,7 +229,7 @@
                                 {% for ticket in dashboard.recent_tickets %}
                                     <tr>
                                         <td>
-                                            <a href="{{ 'support/ticket/' ~ ticket.id|url }}" style="font-weight: 600;">
+                                            <a href="{{ ('support/ticket/' ~ ticket.id)|url }}" style="font-weight: 600;">
                                                 {{ ticket.subject }}
                                             </a>
                                             <div style="font-size: 0.75rem; color: var(--text-muted);">#{{ ticket.id }}</div>
@@ -240,7 +243,7 @@
                                             </span>
                                         </td>
                                         <td class="text-end">
-                                            <a href="{{ 'support/ticket/' ~ ticket.id|url }}" class="theme-btn theme-btn-outline theme-btn-sm">{{ 'View'|trans }}</a>
+                                            <a href="{{ ('support/ticket/' ~ ticket.id)|url }}" class="theme-btn theme-btn-outline theme-btn-sm">{{ 'View'|trans }}</a>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -272,18 +275,53 @@
                 {{ settings.front_hero_subtitle|default('Browse our services, manage existing subscriptions, pay invoices, and access customer support.'|trans) }}
             </p>
 
+            {% set domain_product = null %}
+            {% for cat in categories %}
+                {% for prod in cat.products %}
+                    {% if prod.type == 'domain' and domain_product is null %}
+                        {% set domain_product = prod %}
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+
+            {% if domain_product %}
+                <div class="front-domain-search">
+                    <form action="{{ 'order'|url({ product: domain_product.id }) }}" method="get" class="d-flex flex-column align-items-center">
+                        <input type="hidden" name="product" value="{{ domain_product.id }}">
+                        <div class="input-group input-group-lg w-100">
+                            <span class="input-group-text bg-surface border-subtle text-muted">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            </span>
+                            <input type="text" name="domain" class="form-control" placeholder="{{ 'Search your ideal domain name (e.g. yourbrand.com)...'|trans }}" aria-label="{{ 'Domain search'|trans }}" required>
+                            <button class="theme-btn theme-btn-primary px-4 fw-semibold" type="submit">{{ 'Search'|trans }}</button>
+                        </div>
+                    </form>
+                    {% set domain_tlds = guest.serviceDomain_tlds({"allow_register": 1})|default([]) %}
+                    {% if domain_tlds is not empty %}
+                        <div class="tld-pricing-pills">
+                            {% for tld_item in domain_tlds|slice(0, 5) %}
+                                <a href="{{ 'order'|url({ product: domain_product.id, domain: 'example' ~ tld_item.tld }) }}" class="tld-pill">
+                                    <strong>{{ tld_item.tld }}</strong>
+                                    <span>{{ (tld_item.price_registration * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('EUR'))) }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
             <!-- Call to Action Buttons -->
             <div class="d-flex flex-wrap justify-content-center gap-3 mt-4 pt-2">
-                <a href="{{ 'order'|url }}" class="theme-btn theme-btn-primary py-2 px-4 fs-6">
+                <a href="{{ 'order'|url }}" class="theme-btn theme-btn-primary py-2 px-4">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                     <span>{{ 'Browse All Services'|trans }}</span>
                 </a>
-                <a href="{{ 'login'|url }}" class="theme-btn theme-btn-secondary py-2 px-4 fs-6">
+                <a href="{{ 'login'|url }}" class="theme-btn theme-btn-secondary py-2 px-4">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                     <span>{{ 'Client Portal Login'|trans }}</span>
                 </a>
                 {% if settings.show_register_link != '0' %}
-                    <a href="{{ 'signup'|url }}" class="theme-btn theme-btn-outline py-2 px-4 fs-6">
+                    <a href="{{ 'signup'|url }}" class="theme-btn theme-btn-outline py-2 px-4">
                         <span>{{ 'Create Account'|trans }}</span>
                     </a>
                 {% endif %}
@@ -350,22 +388,37 @@
                                         <div class="product-card-pricing p-4 border-top border-bottom border-subtle mt-auto">
                                             <div class="small text-muted mb-1">{{ 'Starting at'|trans }}</div>
                                             <div class="d-flex align-items-baseline gap-1">
-                                                {% if product.pricing.type == 'recurrent' %}
-                                                    {% for code, prices in product.pricing.recurrent %}
-                                                        {% if loop.first %}
-                                                            <span class="display-6 fw-bold text-main font-monospace">
-                                                                {{ (prices.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
-                                                            </span>
-                                                            <span class="text-muted small">/ {{ guest.system_periods[code]|default(code)|trans }}</span>
+                                                {% if product.pricing.type|default('') == 'recurrent' %}
+                                                    {% set lowest_price = null %}
+                                                    {% set lowest_period = null %}
+                                                    {% for code in ['1W', '1M', '3M', '6M', '1Y', '2Y', '3Y'] %}
+                                                        {% if product.pricing.recurrent[code] is defined and (product.pricing.recurrent[code].enabled ?? false) %}
+                                                            {% if lowest_price is null or product.pricing.recurrent[code].price < lowest_price %}
+                                                                {% set lowest_price = product.pricing.recurrent[code].price %}
+                                                                {% set lowest_period = code %}
+                                                            {% endif %}
                                                         {% endif %}
                                                     {% endfor %}
-                                                {% elseif product.pricing.type == 'once' %}
-                                                    <span class="display-6 fw-bold text-main font-monospace">
-                                                        {{ (product.pricing.once.price * cart_currency.conversion_rate)|format_currency(cart_currency.code ?? default_currency) }}
+                                                    {% if lowest_price is not null %}
+                                                        <span class="display-6 fw-bold text-main">
+                                                            {{ (lowest_price * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('EUR'))) }}
+                                                        </span>
+                                                        <span class="text-muted small">/ {{ guest.system_periods[lowest_period|default('')]|default(lowest_period|default('month'))|lower|trans }}</span>
+                                                    {% else %}
+                                                        <span class="display-6 fw-bold text-success">{{ 'Free'|trans }}</span>
+                                                    {% endif %}
+                                                {% elseif product.pricing.type|default('') == 'once' %}
+                                                    <span class="display-6 fw-bold text-main">
+                                                        {{ ((product.pricing.once.price|default(0)) * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('EUR'))) }}
                                                     </span>
                                                     <span class="text-muted small">/ {{ 'one-time'|trans }}</span>
+                                                {% elseif product.type == 'domain' and product.price_starting_from|default(0) > 0 %}
+                                                    <span class="display-6 fw-bold text-main">
+                                                        {{ (product.price_starting_from * cart_currency.conversion_rate)|format_currency(cart_currency.code|default(default_currency|default('EUR'))) }}
+                                                    </span>
+                                                    <span class="text-muted small">/ {{ 'yr'|trans }}</span>
                                                 {% else %}
-                                                    <span class="display-6 fw-bold text-success font-monospace">{{ 'Free'|trans }}</span>
+                                                    <span class="display-6 fw-bold text-success">{{ 'Free'|trans }}</span>
                                                 {% endif %}
                                             </div>
                                         </div>

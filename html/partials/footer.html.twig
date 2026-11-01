@@ -14,7 +14,7 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
             <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-1">
                 <span>
-                    {% if settings.footer_copyright %}
+                    {% if settings.footer_copyright|default('') %}
                         &copy; {{ 'now'|date('Y') }} {{ settings.footer_copyright }}
                     {% else %}
                         &copy; {{ 'now'|date('Y') }} {{ company.signature|default(company.name|default('Client Portal')) }}. {{ 'All rights reserved.'|trans }}
@@ -22,7 +22,7 @@
                 </span>
                 <span class="d-none d-md-inline text-muted mx-1">&bull;</span>
                 <span class="theme-credits small text-muted">
-                    {{ 'Theme'|trans }} <span class="fw-medium">FossModernicus</span> {{ 'by'|trans }} <a href="https://wpineu.com" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-underline">WPinEU.com</a>
+                    {{ 'Theme'|trans }} <span class="fw-medium">FossModernicus</span> {{ 'by'|trans }} <a href="https://administraktor.com" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-underline">administraktor.com</a>
                 </span>
             </div>
 

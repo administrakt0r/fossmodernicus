@@ -2,7 +2,7 @@
 {% set active_menu = 'support' %}
 {% import "macro_functions.html.twig" as mf %}
 {% set is_guest_ticket = ticket.author.role|default('') == 'guest' %}
-{% set can_reply = ticket.status != 'closed' or (not is_guest_ticket and ticket.helpdesk.can_reopen) %}
+{% set can_reply = ticket.status|default('') != 'closed' or (not is_guest_ticket and ticket.helpdesk.can_reopen|default(false)) %}
 
 {% block meta_title %}{{ ticket.subject }}{% endblock %}
 
@@ -28,7 +28,7 @@
                 <h1 class="h3 fw-bold mb-0">{{ ticket.subject }}</h1>
                 {{ mf.status_badge(ticket.status, 'ticket') }}
             </div>
-            <p class="text-muted small mb-0">{{ 'Ticket #%s &bull; Department: %s &bull; Opened %s'|trans|format(ticket.id, ticket.helpdesk.name, ticket.created_at|format_date) }}</p>
+            <p class="text-muted small mb-0">{{ 'Ticket #%s &bull; Department: %s &bull; Opened %s'|trans|format(ticket.id, ticket.helpdesk.name|default('Support'), ticket.created_at|format_date) }}</p>
         </div>
         <div class="d-flex gap-2">
             {% if can_reply %}
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Related Service alert if applicable -->
-    {% if ticket.rel_type|default('') == 'order' and ticket.rel_id %}
+    {% if ticket.rel_type|default('') == 'order' and ticket.rel_id|default(null) %}
         <div class="alert alert-info d-flex align-items-center gap-2 mb-4" role="alert">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="9" />
@@ -131,7 +131,7 @@
                     <h4 class="card-title h5 mb-0 fw-bold">{{ 'Post a Reply'|trans }}</h4>
                 </div>
                 <div class="card-body p-4">
-                    <form id="ticket-reply-form">
+                    <form id="ticket-reply-form" method="post" action="{{ (is_guest_ticket ? 'guest/support/ticket_reply' : 'support/ticket_reply')|api_url }}">
                         <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}">
                         {% if is_guest_ticket %}
                             <input type="hidden" name="hash" value="{{ ticket.hash }}">
@@ -203,7 +203,7 @@
                 closeTicketBtn.disabled = true;
                 supportApi.post(
                     'support/ticket_close',
-                    { id: {{ ticket.id }} },
+                    {{ is_guest_ticket ? ("{ hash: '" ~ ticket.hash ~ "' }")|raw : ("{ id: " ~ ticket.id ~ " }")|raw }},
                     () => {
                         flashMessage({
                             message: `{{ 'Ticket #%s closed'|trans|format(ticket.id) }}`,

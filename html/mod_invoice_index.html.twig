@@ -66,7 +66,7 @@
                                     </td>
                                     <td class="text-muted">{{ invoice.created_at|format_date }}</td>
                                     <td class="text-danger fw-medium">{{ invoice.due_at|format_date }}</td>
-                                    <td class="fw-bold">{{ invoice.total|format_currency(invoice.currency ?? default_currency) }}</td>
+                                    <td class="fw-bold">{{ invoice.total|format_currency(invoice.currency|default(default_currency|default('USD'))) }}</td>
                                     <td>{{ mf.status_badge(invoice.status, 'invoice') }}</td>
                                     <td class="text-end">
                                         <a href="{{ ('invoice/' ~ invoice.hash)|url }}" class="btn btn-sm btn-primary">
@@ -123,7 +123,7 @@
                                     </td>
                                     <td class="text-muted">{{ invoice.created_at|format_date }}</td>
                                     <td class="text-muted">{{ invoice.paid_at ? invoice.paid_at|format_date : '-' }}</td>
-                                    <td class="fw-bold">{{ invoice.total|format_currency(invoice.currency ?? default_currency) }}</td>
+                                    <td class="fw-bold">{{ invoice.total|format_currency(invoice.currency|default(default_currency|default('USD'))) }}</td>
                                     <td>{{ mf.status_badge(invoice.status, 'invoice') }}</td>
                                     <td class="text-end">
                                         <a href="{{ ('invoice/' ~ invoice.hash)|url }}" class="btn btn-sm btn-outline-secondary">

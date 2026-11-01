@@ -1,0 +1,14 @@
+{% extends request.ajax ? "layout_blank.html.twig" : "layout_default.html.twig" %}
+
+{% set active_menu = 'cart' %}
+{% set cart = guest.cart_get %}
+
+{% block meta_title %}{{ 'Shopping Cart'|trans }}{% endblock %}
+
+{% block content %}
+<div class="theme-order-container">
+    {% include 'partials/order_stepper.html.twig' with { 'current_step': 3 } %}
+
+    {{ include('partials/order_checkout.html.twig', { cart: cart }) }}
+</div>
+{% endblock %}
