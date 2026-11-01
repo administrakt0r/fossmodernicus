@@ -1,7 +1,6 @@
-# FossModernicus Client Portal Theme for FOSSBilling
+# FossModernicus Free Theme for FOSSBilling
 
 <p align="center">
-  <img src="assets/img/logo.svg" width="72" height="72" alt="FossModernicus Logo" /><br>
   <strong><span style="font-size: 2.2em;">FossModernicus</span></strong><br>
   <em>A clean, modern client portal theme for FOSSBilling</em>
 </p>
@@ -16,7 +15,7 @@
 </p>
 
 <p align="center">
-  A clean, modern alternative to default billing themes. Built on Tabler with high-contrast dark mode, easy color presets, and zero hardcoded branding.
+  A clean, modern alternative to default billing theme. 
 </p>
 
 > [!TIP]
