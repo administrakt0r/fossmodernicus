@@ -8,5 +8,6 @@
 - **Checkout & Domain Orders**: Fixed Twig strict-mode errors during domain checkout, pre-selected the first active billing cycle, and added the missing `/cart` page template.
 - **Theme Polish**: Added dark mode logo support (`logo-dark.svg`), refreshed the Knowledge Base hub, fixed mobile viewport overflow, and corrected frontpage pricing card lookups.
 - **Performance & Asset Size**: Compressed `screenshot.jpg` to 26 KB, removed redundant `screenshot.png`, and added `.gitattributes` `export-ignore` to keep GitHub release zips under 250 KB.
+- **Theme Flashing & Logo Fix**: Synchronized theme storage keys to eliminate dark-mode navigation flicker, exempted head theme scripts from Rocket Loader deferral, inlined critical logo CSS to prevent duplicate rendering, and added cache-busting query strings.
 
 

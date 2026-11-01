@@ -126,14 +126,17 @@
   const THEME_KEY = 'fossmodernicus_theme_mode';
 
   function getPreferredTheme() {
-    const stored = localStorage.getItem(THEME_KEY);
+    const stored = localStorage.getItem(THEME_KEY) || localStorage.getItem('fossmodernicus_theme');
     if (stored) return stored;
-    return document.documentElement.getAttribute('data-theme') || 'light';
+    const current = document.documentElement.getAttribute('data-theme');
+    if (current) return current;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
   }
 
   function setTheme(mode) {
     document.documentElement.setAttribute('data-theme', mode);
     localStorage.setItem(THEME_KEY, mode);
+    localStorage.setItem('fossmodernicus_theme', mode);
     const icon = document.querySelector('.theme-toggle-icon');
     if (icon) {
       icon.innerHTML = mode === 'dark' 

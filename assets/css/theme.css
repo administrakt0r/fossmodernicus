@@ -1523,7 +1523,7 @@ a:hover {
 .form-control::placeholder,
 .theme-input::placeholder,
 .theme-textarea::placeholder {
-  color: #475569;
+  color: #475569 !important;
   opacity: 1;
 }
 
