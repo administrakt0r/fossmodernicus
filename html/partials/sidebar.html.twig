@@ -4,15 +4,10 @@
 <aside class="theme-sidebar" id="theme-sidebar">
     <div class="theme-sidebar-brand">
         <a href="{{ '/'|url }}" class="d-flex align-items-center text-decoration-none">
-            {% if settings.custom_logo_url|default('') %}
-                <img src="{{ settings.custom_logo_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo" style="height: 40px; width: auto; max-width: 100%;">
-            {% elseif guest.system_company.logo_url|default('') %}
-                <img src="{{ guest.system_company.logo_url }}" alt="{{ guest.system_company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo" style="height: 40px; width: auto; max-width: 100%;">
-            {% elseif company.logo_url|default('') %}
-                <img src="{{ company.logo_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo" style="height: 40px; width: auto; max-width: 100%;">
-            {% else %}
-                <img src="{{ 'img/logo.svg'|asset_url }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo" style="height: 40px; width: auto; max-width: 100%;">
-            {% endif %}
+            {% set light_logo = settings.custom_logo_url|default(guest.system_company.logo_url|default(company.logo_url|default('img/logo.svg'|asset_url))) %}
+            {% set dark_logo = settings.custom_logo_dark_url|default('img/logo-dark.svg'|asset_url) %}
+            <img src="{{ light_logo }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo theme-logo-light" style="height: 40px; width: auto; max-width: 100%;" fetchpriority="high" decoding="async">
+            <img src="{{ dark_logo }}" alt="{{ company.name|default('Client Portal') }}" width="160" height="40" class="theme-brand-logo theme-logo-dark" style="height: 40px; width: auto; max-width: 100%;" fetchpriority="high" decoding="async">
         </a>
     </div>
 

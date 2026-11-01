@@ -62,7 +62,7 @@
                             <div class="p-2 border rounded-3 bg-surface hover-shadow cursor-pointer text-center" style="min-width: 140px;"
                                  onclick="paymentPrompt('{{ gtw.id }}', {{ gtw.allow_recurrent|default(false) ? 'true' : 'false' }}, {{ gtw.allow_single|default(false) ? 'true' : 'false' }}, `{{ gtw.title }}`)">
                                 {% if gtw.logo.logo|default(null) %}
-                                    <img src="{{ gtw.logo.logo }}" alt="{{ gtw.title }}" style="max-height: 40px; max-width: 120px;" class="mb-1" />
+                                    <img src="{{ gtw.logo.logo }}" alt="{{ gtw.title }}" width="120" height="40" loading="lazy" decoding="async" style="max-height: 40px; max-width: 120px;" class="mb-1" />
                                 {% else %}
                                     <div class="fw-semibold py-2">{{ gtw.title }}</div>
                                 {% endif %}

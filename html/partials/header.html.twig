@@ -34,7 +34,7 @@
             <div class="theme-user-menu">
                 <button type="button" class="theme-toggle-btn" id="theme-user-dropdown-btn" aria-label="{{ 'User profile menu'|trans }}" aria-haspopup="true" style="border: none; background: transparent; padding: 0;">
                     <div class="theme-avatar">
-                        {{ profile.first_name|default('')|first|upper }}{{ profile.last_name|default('')|first|upper }}
+                        {{ (profile.first_name|default('')|first ~ profile.last_name|default('')|first)|upper|default(profile.email|default('U')|first|upper) }}
                     </div>
                 </button>
                 <div id="theme-user-dropdown-menu" class="theme-card d-none position-absolute end-0 mt-2 p-2 shadow-lg" style="width: 220px; z-index: 1050; border-radius: var(--radius-md);">

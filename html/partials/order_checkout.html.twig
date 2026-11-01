@@ -231,7 +231,7 @@
                                             <input type="radio" name="gateway_id" id="gtw-{{ gtw.id }}" value="{{ gtw.id }}" class="form-check-input me-1 gateway-radio" {% if not gateway_selected %}checked="checked"{% endif %}>
                                             <div class="d-flex align-items-center gap-2">
                                                 {% if gtw.logo.logo|default(null) %}
-                                                    <img src="{{ gtw.logo.logo }}" alt="{{ gtw.title }}" style="max-height: 28px; max-width: 80px; object-fit: contain;">
+                                                    <img src="{{ gtw.logo.logo }}" alt="{{ gtw.title }}" width="80" height="28" loading="lazy" decoding="async" style="max-height: 28px; max-width: 80px; object-fit: contain;">
                                                 {% endif %}
                                                 <strong class="text-main">{{ gtw.title }}</strong>
                                             </div>
@@ -333,7 +333,7 @@
 
                 <div class="d-none d-lg-block">
                     {% if client %}
-                        <button type="submit" form="order-checkout-form" class="theme-btn theme-btn-primary w-100 justify-content-center py-2 fs-6 mb-2" id="checkout-btn-desktop">
+                        <button type="submit" form="order-checkout-form" class="theme-btn theme-btn-primary w-100 justify-content-center py-2 mb-2" id="checkout-btn-desktop">
                             <span>{{ 'Complete Order & Pay'|trans }}</span>
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ms-1"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </button>
@@ -344,7 +344,7 @@
                             <a href="{{ 'privacy-policy'|url }}" target="_blank" rel="noopener noreferrer" class="text-reset text-decoration-underline">{{ 'Privacy Policy'|trans }}</a>.
                         </p>
                     {% else %}
-                        <a href="#order-auth-card" class="theme-btn theme-btn-primary w-100 justify-content-center py-2 fs-6 mb-3">
+                        <a href="#order-auth-card" class="theme-btn theme-btn-primary w-100 justify-content-center py-2 mb-3">
                             {{ 'Sign In to Complete Order'|trans }}
                         </a>
                     {% endif %}

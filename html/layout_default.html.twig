@@ -11,6 +11,30 @@
     <meta name="generator" content="FOSSBilling">
     <meta name="robots" content="{{ settings.meta_robots|default('index, follow') }}">
 
+    <script>
+        (function() {
+            try {
+                var m = localStorage.getItem('fossmodernicus_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', m);
+            } catch(e) {}
+        })();
+    </script>
+    <script type="speculationrules">
+    {
+      "prefetch": [
+        {
+          "where": {
+            "and": [
+              { "href_matches": "/*" },
+              { "not": { "href_matches": ["/client/logout*", "/order/checkout*", "/api/*", "*?*"] } }
+            ]
+          },
+          "eagerness": "moderate"
+        }
+      ]
+    }
+    </script>
+
     {% if guest.system_company.favicon_url %}
         <link rel="shortcut icon" href="{{ guest.system_company.favicon_url }}">
     {% else %}

@@ -7,12 +7,12 @@
 </p>
 
 <p align="center">
-  <a href="https://fossbilling.org"><img src="https://img.shields.io/badge/FOSSBilling-v0.8.x%20%7C%20v0.9.x-0e5077.svg" alt="FOSSBilling Compatibility" /></a>
-  <a href="https://github.com/administrakt0r/fossmodernicus/releases/latest"><img src="https://img.shields.io/badge/Release-v1.0.5-0284c7.svg" alt="Latest Version" /></a>
+  <a href="https://fossbilling.org"><img src="https://img.shields.io/badge/FOSSBilling-v0.8.9%20%28Latest%29-0e5077.svg" alt="FOSSBilling Compatibility" /></a>
+  <a href="https://github.com/administrakt0r/fossmodernicus/releases/latest"><img src="https://img.shields.io/badge/Release-v1.0.3-0284c7.svg" alt="Latest Version" /></a>
   <a href="#contrast--accessibility-architecture"><img src="https://img.shields.io/badge/Accessibility-WCAG%20AAA%20Compliant-15803d.svg" alt="WCAG AAA Contrast" /></a>
   <a href="#lighthouse-performance-audit"><img src="https://img.shields.io/badge/Lighthouse-100%20Accessibility%20%7C%2098%20Perf-brightgreen.svg" alt="Lighthouse Audited" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License" /></a>
-  <a href="https://wpineu.com"><img src="https://img.shields.io/badge/Maintained%20by-WPinEU.com-64748b.svg" alt="WPinEU.com Credits" /></a>
+  <a href="https://administraktor.com"><img src="https://img.shields.io/badge/Maintained%20by-administraktor.com-64748b.svg" alt="administraktor.com Credits" /></a>
 </p>
 
 <p align="center">
@@ -20,7 +20,15 @@
   Engineered for web hosts, domain registrars, and cloud service providers requiring professional polish without vendor lock-in.
 </p>
 
+> [!TIP]
+> ### 📥 Download Latest Release & Live Demo
+> - **Direct Download:** [**`fossmodernicus-v1.0.3.zip`**](https://github.com/administrakt0r/fossmodernicus/releases/latest/download/fossmodernicus-v1.0.3.zip) *(Production Theme Package)*  
+> - **GitHub Releases:** Browse all version packages and changelogs on the [**Releases Page**](https://github.com/administrakt0r/fossmodernicus/releases).  
+> - **🌐 Live Interactive Demo:** [**https://fossmodernicus.wpineu.com/**](https://fossmodernicus.wpineu.com/)  
+>   *(Demo Client Login &mdash; Email: `demo@wpineu.com` &bull; Password: `Demo1234`)*
+
 <p align="center">
+  <a href="https://fossmodernicus.wpineu.com/" target="_blank" rel="noopener noreferrer"><strong>🌐 Live Demo</strong></a> &bull;
   <a href="#visual-showcase--looping-preview"><strong>Live Showcase</strong></a> &bull;
   <a href="#video-tours--live-walkthroughs"><strong>Video Tours</strong></a> &bull;
   <a href="#screenshot-gallery"><strong>Screenshots</strong></a> &bull;
@@ -39,7 +47,7 @@
 
 <!-- Compact Static Preview -->
 <p align="center">
-  <img src="screenshot.png" alt="FossModernicus Dashboard Overview" width="460" /><br>
+  <img src="screenshot.jpg" alt="FossModernicus Dashboard Overview" width="460" /><br>
   <small>Default Dashboard Overview (Corporate Navy Palette &bull; Light Mode)</small>
 </p>
 
@@ -226,14 +234,14 @@ Audited using Google Chrome DevTools / Lighthouse CLI under standard desktop and
 
 ## Production Installation
 
-FossModernicus is compatible with standard FOSSBilling instances (versions 0.8.x, 0.9.x, and newer).
+FossModernicus is tested and verified against FOSSBilling v0.8.x (including v0.8.8 and the latest v0.8.9 release).
 
 ### Method 1: Release Archive (.zip)
 
-1. Download `fossmodernicus-v1.0.5.zip` from the [Releases](https://github.com/administrakt0r/fossmodernicus/releases) page.
+1. Download [**`fossmodernicus-v1.0.3.zip`**](https://github.com/administrakt0r/fossmodernicus/releases/latest/download/fossmodernicus-v1.0.3.zip) (or browse all versions on [GitHub Releases](https://github.com/administrakt0r/fossmodernicus/releases)).
 2. Extract the archive into your FOSSBilling themes directory:
    ```bash
-   unzip fossmodernicus-v1.0.5.zip -d /path/to/fossbilling/themes/fossmodernicus
+   unzip fossmodernicus-v1.0.3.zip -d /path/to/fossbilling/themes/fossmodernicus
    ```
 3. Set appropriate permissions:
    ```bash
@@ -275,7 +283,6 @@ rm -rf /path/to/fossbilling/data/cache/*
 themes/fossmodernicus/
 ├── manifest.json              # Theme metadata and CommonMark markdown rules
 ├── screenshot.jpg             # Theme preview thumbnail for admin panel
-├── screenshot.png             # High-resolution documentation preview
 ├── LICENSE                    # Apache 2.0 open-source license
 ├── README.md                  # Theme documentation
 ├── config/
@@ -296,7 +303,7 @@ themes/fossmodernicus/
 │   ├── partials/
 │   │   ├── header.html.twig   # Top navigation and user dropdown
 │   │   ├── sidebar.html.twig  # Primary desktop and mobile drawer navigation
-│   │   ├── footer.html.twig   # Portal footer with WPinEU.com credits
+│   │   ├── footer.html.twig   # Portal footer with administraktor.com credits
 │   │   └── announcement.html.twig # Markdown announcement banner
 │   ├── mod_index_dashboard.html.twig # Client overview dashboard
 │   ├── mod_client_profile.html.twig  # Profile, contact info, and security
@@ -338,5 +345,5 @@ Contributions and suggestions are welcome:
 ## License & Credits
 
 - Licensed under the [Apache License 2.0](LICENSE).
-- Client portal design and theme engineering by [WPinEU.com](https://wpineu.com).
+- Client portal design and theme engineering by [administraktor.com](https://administraktor.com).
 - Compatible with [FOSSBilling](https://fossbilling.org).

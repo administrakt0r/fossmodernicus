@@ -36,7 +36,7 @@
 
                 <div class="input-group mb-2">
                     <span class="input-group-text bg-subtle text-muted">www.</span>
-                    <input type="text" name="register_sld" id="domain-register-sld" class="form-control" value="{{ request.register_sld }}" placeholder="{{ 'example'|trans }}" autocomplete="off" autocorrect="off" autocapitalize="none">
+                    <input type="text" name="register_sld" id="domain-register-sld" class="form-control" value="{{ request.register_sld|default(request.domain|default('')) }}" placeholder="{{ 'example'|trans }}" autocomplete="off" autocorrect="off" autocapitalize="none">
                     <select class="form-select" name="register_tld" id="domain-register-tld" aria-label="{{ 'Domain extension TLD'|trans }}" style="max-width: 130px; font-weight: 600;">
                         {% for tld in tlds %}
                             <option value="{{ tld.tld }}">{{ tld.tld }}</option>
@@ -145,7 +145,7 @@
 
                 <div class="input-group mb-2">
                     <span class="input-group-text bg-subtle text-muted">www.</span>
-                    <input type="text" name="transfer_sld" id="domain-transfer-sld" class="form-control" value="{{ request.transfer_sld }}" placeholder="{{ 'existingdomain'|trans }}" autocomplete="off" autocorrect="off" autocapitalize="none">
+                    <input type="text" name="transfer_sld" id="domain-transfer-sld" class="form-control" value="{{ request.transfer_sld|default('') }}" placeholder="{{ 'existingdomain'|trans }}" autocomplete="off" autocorrect="off" autocapitalize="none">
                     <select class="form-select" name="transfer_tld" id="domain-transfer-tld" aria-label="{{ 'Transfer domain extension TLD'|trans }}" style="max-width: 130px; font-weight: 600;">
                         {% for tld in transfer_tlds %}
                             <option value="{{ tld.tld }}" data-require-transfer-code="{{ tld.require_transfer_code ? '1' : '0' }}">{{ tld.tld }}</option>
@@ -182,7 +182,7 @@
                         <span>{{ 'Authorization / EPP Code'|trans }}</span>
                         <button type="button" class="domain-info-tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'An EPP or Authorization code is a security key provided by your current registrar proving domain ownership. You can find it in your current registrar dashboard or request it from their support.'|trans }}" aria-label="{{ 'EPP code information'|trans }}">?</button>
                     </label>
-                    <input class="form-control font-monospace" type="text" name="transfer_code" id="transfer-code" value="{{ request.transfer_code }}" placeholder="{{ 'Enter domain transfer code'|trans }}">
+                    <input class="form-control font-monospace" type="text" name="transfer_code" id="transfer-code" value="{{ request.transfer_code|default('') }}" placeholder="{{ 'Enter domain transfer code'|trans }}">
                     <div class="form-hint small text-muted mt-2" id="transfer-code-hint">
                         {{ 'This TLD requires an authorization code (EPP / Auth code) from your current registrar to initiate transfer.'|trans }}
                     </div>

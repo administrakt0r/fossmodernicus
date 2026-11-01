@@ -158,12 +158,14 @@
       }
     }
 
-    // 3. Theme Toggle Button
+    // 3. Theme Toggle Button & Initial Icon Sync
     const toggleBtn = document.getElementById('theme-toggle-btn');
     if (toggleBtn) {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      setTheme(current);
       toggleBtn.addEventListener('click', function () {
-        const current = document.documentElement.getAttribute('data-theme') || 'light';
-        const next = current === 'dark' ? 'light' : 'dark';
+        const cur = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = cur === 'dark' ? 'light' : 'dark';
         setTheme(next);
       });
     }
@@ -248,5 +250,12 @@
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span><span>' + loadingText + '</span>';
       }
     }, true);
+
+    // 9. bfcache (Back/Forward Cache) recovery
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted) {
+        restoreSubmitButtons();
+      }
+    });
   });
 })();
