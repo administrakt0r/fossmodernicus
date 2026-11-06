@@ -8,9 +8,9 @@
 <p align="center">
   <a href="https://fossbilling.org"><img src="https://img.shields.io/badge/FOSSBilling-v0.8.9%20%28Latest%29-0e5077.svg" alt="FOSSBilling Compatibility" /></a>
   <a href="https://github.com/administrakt0r/fossmodernicus/releases/latest"><img src="https://img.shields.io/badge/Release-v1.0.3-0284c7.svg" alt="Latest Version" /></a>
-  <a href="#contrast--accessibility"><img src="https://img.shields.io/badge/Accessibility-WCAG%20AAA%20Compliant-15803d.svg" alt="WCAG AAA Contrast" /></a>
-  <a href="#lighthouse-scores"><img src="https://img.shields.io/badge/Lighthouse-100%20Accessibility%20%7C%2098%20Perf-brightgreen.svg" alt="Lighthouse Audited" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License" /></a>
+  <a href="https://github.com/administrakt0r/fossmodernicus#contrast--accessibility"><img src="https://img.shields.io/badge/Accessibility-WCAG%20AAA%20Compliant-15803d.svg" alt="WCAG AAA Contrast" /></a>
+  <a href="https://github.com/administrakt0r/fossmodernicus#lighthouse-scores"><img src="https://img.shields.io/badge/Lighthouse-100%20Accessibility%20%7C%2098%20Perf-brightgreen.svg" alt="Lighthouse Audited" /></a>
+  <a href="https://github.com/administrakt0r/fossmodernicus/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License" /></a>
   <a href="https://administraktor.com"><img src="https://img.shields.io/badge/Maintained%20by-administraktor.com-64748b.svg" alt="administraktor.com Credits" /></a>
 </p>
 
@@ -37,13 +37,13 @@
 
 <!-- Hero Preview -->
 <div id="visual-showcase" align="center">
-  <img src="demo/hero_showcase.gif" alt="FossModernicus Live Showcase" width="820" />
+  <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/demo/hero_showcase.gif" alt="FossModernicus Live Showcase" width="820" />
   <p><em>Desktop daylight, high-contrast dark mode, and responsive mobile layouts.</em></p>
 </div>
 
 <!-- Compact Static Preview -->
 <p align="center">
-  <img src="screenshot.jpg" alt="FossModernicus Dashboard Overview" width="460" /><br>
+  <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshot.jpg" alt="FossModernicus Dashboard Overview" width="460" /><br>
   <small>Default Dashboard Overview (Corporate Navy Palette &bull; Light Mode)</small>
 </p>
 
@@ -55,7 +55,7 @@ Animated previews showing dark mode switching, navigation, and mobile layouts:
 
 | Desktop (1440x900) | Mobile (390x844) |
 |:---:|:---:|
-| <img src="demo/desktop_theme_tour.gif" width="460" alt="Desktop Theme Tour" /><br><em>Desktop daylight to dark mode switch, services, and invoices</em> | <img src="demo/mobile_theme_tour.gif" width="220" alt="Mobile Theme Tour" /><br><em>Mobile navigation drawer, cards, and responsive views</em> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/demo/desktop_theme_tour.gif" width="460" alt="Desktop Theme Tour" /><br><em>Desktop daylight to dark mode switch, services, and invoices</em> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/demo/mobile_theme_tour.gif" width="220" alt="Mobile Theme Tour" /><br><em>Mobile navigation drawer, cards, and responsive views</em> |
 
 ---
 
@@ -65,37 +65,37 @@ Animated previews showing dark mode switching, navigation, and mobile layouts:
 
 | Light Mode | Dark Mode |
 |:---:|:---:|
-| <img src="screenshots/desktop_01_dashboard_light.png" width="460" alt="Client Dashboard Light" /> | <img src="screenshots/desktop_02_dashboard_dark.png" width="460" alt="Client Dashboard Dark" /> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_01_dashboard_light.png" width="460" alt="Client Dashboard Light" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_02_dashboard_dark.png" width="460" alt="Client Dashboard Dark" /> |
 | **Client Dashboard (Light)** | **Client Dashboard (Dark)** |
-| <img src="screenshots/desktop_03_services_light.png" width="460" alt="Active Services Light" /> | <img src="screenshots/desktop_03_services_dark.png" width="460" alt="Active Services Dark" /> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_03_services_light.png" width="460" alt="Active Services Light" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_03_services_dark.png" width="460" alt="Active Services Dark" /> |
 | **Active Subscriptions (Light)** | **Active Subscriptions (Dark)** |
-| <img src="screenshots/desktop_04_service_manage_light.png" width="460" alt="Service Management Light" /> | <img src="screenshots/desktop_04_service_manage_dark.png" width="460" alt="Service Management Dark" /> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_04_service_manage_light.png" width="460" alt="Service Management Light" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_04_service_manage_dark.png" width="460" alt="Service Management Dark" /> |
 | **Service Management (Light)** | **Service Management (Dark)** |
-| <img src="screenshots/desktop_05_invoices_light.png" width="460" alt="Invoice Ledger Light" /> | <img src="screenshots/desktop_05_invoices_dark.png" width="460" alt="Invoice Ledger Dark" /> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_05_invoices_light.png" width="460" alt="Invoice Ledger Light" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_05_invoices_dark.png" width="460" alt="Invoice Ledger Dark" /> |
 | **Invoice Ledger (Light)** | **Invoice Ledger (Dark)** |
-| <img src="screenshots/desktop_06_invoice_view_light.png" width="460" alt="Invoice View Light" /> | <img src="screenshots/desktop_06_invoice_view_dark.png" width="460" alt="Invoice View Dark" /> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_06_invoice_view_light.png" width="460" alt="Invoice View Light" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_06_invoice_view_dark.png" width="460" alt="Invoice View Dark" /> |
 | **Invoice Detail & Payment (Light)** | **Invoice Detail & Payment (Dark)** |
-| <img src="screenshots/desktop_07_support_tickets_light.png" width="460" alt="Support Tickets Light" /> | <img src="screenshots/desktop_07_support_tickets_dark.png" width="460" alt="Support Tickets Dark" /> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_07_support_tickets_light.png" width="460" alt="Support Tickets Light" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_07_support_tickets_dark.png" width="460" alt="Support Tickets Dark" /> |
 | **Support Helpdesk (Light)** | **Support Helpdesk (Dark)** |
-| <img src="screenshots/desktop_08_support_ticket_view_light.png" width="460" alt="Ticket Conversation Light" /> | <img src="screenshots/desktop_08_support_ticket_view_dark.png" width="460" alt="Ticket Conversation Dark" /> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_08_support_ticket_view_light.png" width="460" alt="Ticket Conversation Light" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_08_support_ticket_view_dark.png" width="460" alt="Ticket Conversation Dark" /> |
 | **Ticket Conversation (Light)** | **Ticket Conversation (Dark)** |
-| <img src="screenshots/desktop_09_order_catalog_light.png" width="460" alt="Product Catalogue Light" /> | <img src="screenshots/desktop_09_order_catalog_dark.png" width="460" alt="Product Catalogue Dark" /> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_09_order_catalog_light.png" width="460" alt="Product Catalogue Light" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_09_order_catalog_dark.png" width="460" alt="Product Catalogue Dark" /> |
 | **Product Catalogue (Light)** | **Product Catalogue (Dark)** |
-| <img src="screenshots/desktop_10_client_profile_light.png" width="460" alt="Account Profile Light" /> | <img src="screenshots/desktop_10_client_profile_dark.png" width="460" alt="Account Profile Dark" /> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_10_client_profile_light.png" width="460" alt="Account Profile Light" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_10_client_profile_dark.png" width="460" alt="Account Profile Dark" /> |
 | **Account Profile & Security (Light)** | **Account Profile & Security (Dark)** |
-| <img src="screenshots/desktop_11_login_light.png" width="460" alt="Authentication Light" /> | <img src="screenshots/desktop_12_login_dark.png" width="460" alt="Authentication Dark" /> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_11_login_light.png" width="460" alt="Authentication Light" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/desktop_12_login_dark.png" width="460" alt="Authentication Dark" /> |
 | **Client Sign-In (Light)** | **Client Sign-In (Dark)** |
 
 ### Mobile Views (390x844 iPhone Viewport)
 
 | Mobile Dashboard | Mobile Drawer Menu | Mobile Order Catalog |
 |:---:|:---:|:---:|
-| <img src="screenshots/mobile_01_dashboard_light.png" width="300" alt="Mobile Dashboard Light" /> | <img src="screenshots/mobile_03_drawer_menu.png" width="300" alt="Mobile Drawer Menu" /> | <img src="screenshots/mobile_06_order_catalog_dark.png" width="300" alt="Mobile Catalog Dark" /> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/mobile_01_dashboard_light.png" width="300" alt="Mobile Dashboard Light" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/mobile_03_drawer_menu.png" width="300" alt="Mobile Drawer Menu" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/mobile_06_order_catalog_dark.png" width="300" alt="Mobile Catalog Dark" /> |
 | **Mobile Dashboard** | **Touch-Optimized Drawer** | **Mobile Product Ordering** |
 
 | Mobile Services | Mobile Invoices | Mobile Authentication |
 |:---:|:---:|:---:|
-| <img src="screenshots/mobile_04_services_dark.png" width="300" alt="Mobile Services Dark" /> | <img src="screenshots/mobile_05_invoices_dark.png" width="300" alt="Mobile Invoices Dark" /> | <img src="screenshots/mobile_09_login_dark.png" width="300" alt="Mobile Login Dark" /> |
+| <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/mobile_04_services_dark.png" width="300" alt="Mobile Services Dark" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/mobile_05_invoices_dark.png" width="300" alt="Mobile Invoices Dark" /> | <img src="https://raw.githubusercontent.com/administrakt0r/fossmodernicus/main/screenshots/mobile_09_login_dark.png" width="300" alt="Mobile Login Dark" /> |
 | **Dark Mode Services** | **Dark Mode Invoice Ledger** | **Dark Mode Sign-In View** |
 
 ---
