@@ -1,11 +1,17 @@
 {
+  "id": "fossmodernicus",
+  "type": "theme",
   "name": "FossModernicus",
   "version": "1.0.3",
   "description": "A clean, modern, and professional client portal theme for FOSSBilling, inspired by WHMCS and enterprise billing systems.",
+  "homepage_url": "https://github.com/administrakt0r/fossmodernicus",
   "icon": "screenshot.jpg",
   "author": "administraktor.com",
   "author_url": "https://administraktor.com",
   "license": "Apache-2.0",
+  "requires": {
+    "fossbilling": ">=0.6.0"
+  },
   "markdown_attributes": {
     "\\League\\CommonMark\\Extension\\Table\\Table": {
       "class": "table table-hover align-middle mb-0"
